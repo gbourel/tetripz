@@ -263,25 +263,25 @@ const exerciseMusic=new Function('saved',`
     play(){this.plays++;return Promise.resolve()},
     pause(){this.pauses++}
   };
-  const musicToggle={handlers:{},textContent:'',attrs:{},
+  const toggleElement={handlers:{},textContent:'',attrs:{},
     addEventListener(name,callback){this.handlers[name]=callback},
     setAttribute(name,value){this.attrs[name]=value}
   };
-  const musicVolume={handlers:{},value:'40',
+  const volumeElement={handlers:{},value:'40',
     addEventListener(name,callback){this.handlers[name]=callback}
   };
-  const musicVolumeValue={textContent:''};
+  const volumeOutput={textContent:''};
   const lookup={
-    '#music':musicElement,'#music-toggle':musicToggle,
-    '#music-volume':musicVolume,'#music-volume-value':musicVolumeValue
+    '#music':musicElement,'#music-toggle':toggleElement,
+    '#music-volume':volumeElement,'#music-volume-value':volumeOutput
   };
   const document={querySelector(selector){return lookup[selector]}};
   ${js.slice(musicStart,musicEnd)}
   return {
-    musicElement,musicToggle,musicVolume,musicVolumeValue,data,
+    musicElement,musicToggle:toggleElement,musicVolume:volumeElement,musicVolumeValue:volumeOutput,data,
     state(value){state=value;syncMusic()},
-    toggle(){musicToggle.handlers.click()},
-    volume(value){musicVolume.value=String(value);musicVolume.handlers.input()}
+    toggle(){toggleElement.handlers.click()},
+    volume(value){volumeElement.value=String(value);volumeElement.handlers.input()}
   };
 `);
 const soundtrack=exerciseMusic([['tetripz-music','off'],['tetripz-volume','65']]);
