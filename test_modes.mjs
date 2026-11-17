@@ -13,7 +13,7 @@ assert.match(html, /<option value="0" selected data-i18n="0 · Normal \(sans eff
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
 assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
-assert.match(html, /v1\.13\.0/);
+assert.match(html, /v1\.14\.0/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
 assert.equal((html.match(/class="double-vision"/g)||[]).length,3);
 assert.match(js, /uiDifficulty>0&&!reduceMotion\.matches/);
@@ -311,8 +311,8 @@ console.log('OK : musique activable, stoppable, volume conservé et pause synchr
 // Le thème psychédélique conserve les points d'entrée et l'accessibilité du jeu.
 assert.match(html, /ARCADE \/ BLOCK PARTY/);
 assert.match(html, /name="theme-color" content="#130726"/);
-assert.match(html, /script\.js\?v=1\.13\.0/);
-assert.match(html, /style\.css\?v=1\.13\.0/);
+assert.match(html, /script\.js\?v=1\.14\.0/);
+assert.match(html, /style\.css\?v=1\.14\.0/);
 assert.match(css, /--accent:#9cff60/);
 assert.match(css, /header::before,header::after/); // tétriminos décoratifs
 assert.match(css, /repeating-linear-gradient/); // grille Tetris
@@ -366,3 +366,12 @@ for(const [,key] of html.matchAll(/data-i18n(?:-aria-label)?="([^"]+)"/g)){
 assert.match(html,/id="publish-name" name="pseudo" minlength="2"/);
 assert.match(html,/id="confirm-publish" type="submit"/);
 console.log('OK : français, anglais, langue de secours et traduction complète des libellés.');
+
+// Le logo généré apparaît dans l'en-tête et sert aussi d'icône du site.
+assert.match(html, /<img class="brand-icon" src="assets\/tetripz-logo\.png\?v=1\.14\.0"[^>]*alt="" aria-hidden="true">/);
+assert.match(html, /<link rel="icon" type="image\/png" sizes="64x64" href="assets\/tetripz-logo\.png\?v=1\.14\.0"/);
+assert.match(css, /\.brand-row\{display:flex;justify-content:center/);
+assert.match(css, /\.brand-icon\{[\s\S]*?width:80px;height:80px/);
+assert.match(css, /@media\(max-width:410px\)\{\s*\.brand-row\{gap:8px\}/);
+assert.match(html, /<h1>TETRI<span>PZ<\/span><\/h1>/);
+console.log('OK : logo néon 3D, favicon PNG et en-tête mobile.');
