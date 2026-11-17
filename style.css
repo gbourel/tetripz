@@ -10,3 +10,7 @@
 #board{touch-action:none}
 @media(max-width:760px){.touch-controls{display:flex}.touch-row button{min-height:64px}.touch-row:last-of-type button{min-height:72px}}
 @media(max-width:410px){.touch-row button{flex:1;min-width:0;padding:10px}}
+
+/* Houle : le plateau pivote autour de son centre sans modifier la mise en page. */
+.board-wrap{transform-origin:center center;will-change:transform}
+@media(prefers-reduced-motion:reduce){.board-wrap{transform:none!important;will-change:auto}}
