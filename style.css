@@ -254,3 +254,18 @@ header .music-controls output{font-size:10px;min-width:29px}
   .side{gap:9px}
   .next canvas{margin-top:6px}
 }
+
+/* v1.18 : classement sous le plateau ; commandes tactiles avant le plateau. */
+header>.brand-icon{display:block;margin:0 auto}
+#ranking{grid-column:2;grid-row:2;width:100%;align-self:start}
+@media(max-width:760px){
+  .touch-controls{grid-row:1;margin:0 auto 6px}
+  .board-wrap,.side{grid-row:2}
+  #ranking{grid-column:1;grid-row:3}
+  .stats{grid-row:4}
+  header{padding-top:68px}
+  header>.brand-icon{position:absolute;top:0;left:0;width:58px;height:58px}
+}
+@media(max-width:410px){
+  header>.brand-icon{width:52px;height:52px}
+}
