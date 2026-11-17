@@ -57,7 +57,7 @@ Le jeu lit la musique `tetripz.mp3` en boucle pendant les parties (pause et fin 
 
 ## Version du jeu
 
-Version actuelle : **v1.14.0** (ajout du logo néon 3D et du favicon assorti).
+Version actuelle : **v1.14.1** (correction de la traduction anglaise du bouton « REJOUER » en « RESTART »).
 
 ## Licence
 
