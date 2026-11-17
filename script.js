@@ -41,11 +41,11 @@ function togglePause(){if(state==='playing'){state='paused';pauseBtn.textContent
 let wobbleTime=0;
 function cell(context,x,y,color,size=SIZE,alpha=1){
   const power=state==='playing'&&!reduceMotion.matches?[0,0,.045,.095,.16][uiDifficulty]:0;
-  let px=x*size,py=y*size;
+  let px=x*size,py=y*size,phase=0,speed=0;
   if(power){
-    // Chaque case possède sa phase et sa fréquence : rebond et écrasement indépendants.
-    const phase=x*2.73+y*4.91+(context===nextCtx?7.11:0);
-    const speed=4.1+1.7*Math.sin(phase*1.83);
+    // Chaque case a sa propre oscillation de rebond, d'écrasement et de contour.
+    phase=x*2.73+y*4.91+(context===nextCtx?7.11:0);
+    speed=4.1+1.7*Math.sin(phase*1.83);
     const bounce=Math.sin(wobbleTime*speed*1.65+phase*1.7);
     const squash=power*(Math.sin(wobbleTime*speed+phase)+.25*bounce);
     context.save();
@@ -55,8 +55,33 @@ function cell(context,x,y,color,size=SIZE,alpha=1){
     px=py=-size/2;
   }
   context.globalAlpha=alpha;
-  context.fillStyle=color;context.fillRect(px+1,py+1,size-2,size-2);
-  context.fillStyle='#ffffff35';context.fillRect(px+3,py+3,size-6,3);
+  context.fillStyle=color;
+  if(power){
+    const left=px+1,top=py+1,right=px+size-1,bottom=py+size-1;
+    const radius=size*power*(.2+.8*(1+Math.sin(wobbleTime*speed*.8+phase))/2);
+    const bend=size*power*.55;
+    const topCurve=bend*Math.sin(wobbleTime*speed+phase);
+    const rightCurve=bend*Math.sin(wobbleTime*speed*.83+phase+1.7);
+    const bottomCurve=bend*Math.sin(wobbleTime*speed*1.13+phase+3.1);
+    const leftCurve=bend*Math.sin(wobbleTime*speed*.91+phase+4.5);
+    context.beginPath();
+    context.moveTo(left+radius,top);
+    context.bezierCurveTo(left+size*.32,top+topCurve,left+size*.68,top+topCurve,right-radius,top);
+    context.quadraticCurveTo(right,top,right,top+radius);
+    context.bezierCurveTo(right+rightCurve,top+size*.32,right+rightCurve,top+size*.68,right,bottom-radius);
+    context.quadraticCurveTo(right,bottom,right-radius,bottom);
+    context.bezierCurveTo(left+size*.68,bottom+bottomCurve,left+size*.32,bottom+bottomCurve,left+radius,bottom);
+    context.quadraticCurveTo(left,bottom,left,bottom-radius);
+    context.bezierCurveTo(left+leftCurve,top+size*.68,left+leftCurve,top+size*.32,left,top+radius);
+    context.quadraticCurveTo(left,top,left+radius,top);
+    context.closePath();
+    context.fill();
+    context.clip(); // Le reflet ne déborde pas des bords incurvés.
+  }else{
+    context.fillRect(px+1,py+1,size-2,size-2);
+  }
+  context.fillStyle='#ffffff35';
+  context.fillRect(px+3,py+3,size-6,3);
   context.globalAlpha=1;
   if(power)context.restore();
 }
