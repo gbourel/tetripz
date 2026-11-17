@@ -114,7 +114,7 @@ let brickFromHue=0,brickFromSat=1,brickToHue=0,brickToSat=1,brickElapsed=0,brick
 function chooseBrickColors(){
   brickFromHue=brickHue;brickFromSat=brickSat;
   brickToHue=Math.random()*360;
-  brickToSat=uiDifficulty===4?.2+Math.random()*2.6:.55+Math.random()*1.3;
+  brickToSat=uiDifficulty===4 ? 0.2+Math.random()*2.6 : 0.55+Math.random()*1.3;
   brickElapsed=0;
   brickDuration=uiDifficulty===4?1+Math.random()*1.4:2.2+Math.random()*2;
 }
