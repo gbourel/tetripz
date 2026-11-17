@@ -34,11 +34,11 @@ Des boutons tactiles sont disponibles sur mobile. Le bouton **MENU**, à côté 
 - Rotation très prononcée au niveau 3 et tours complets, avec vitesse ondulante et sens aléatoire, au niveau 4
 - Vision double : copie translucide et colorée du plateau, avec rotation, zoom et opacité évoluant indépendamment ; décalage de teinte permanent de 120° à 240° par rapport aux briques réelles
 - Couleurs des briques du jeu et de l'aperçu variant progressivement en teinte et saturation aux niveaux 3 et 4 (plus vite et plus fortement au niveau 4)
-- Carrés légèrement élastiques : rebond, rotation discrète et déformation individuelle aux niveaux 2 à 4, de plus en plus prononcés
+- Carrés légèrement élastiques : rebond, rotation discrète, côtés courbés et coins s'arrondissant au fil du temps, indépendamment pour chaque carré, aux niveaux 2 à 4
 
 ## Version du jeu
 
-Version actuelle : **v1.6.0** (déformation souple et rebond indépendant de chaque carré aux niveaux 2 à 4).
+Version actuelle : **v1.7.0** (bords incurvés et coins arrondis dynamiques pour les carrés élastiques).
 
 Le numéro de version est affiché discrètement dans le pied de page du jeu et défini dans `index.html` (élément `#app-version`).
 
