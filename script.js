@@ -4,7 +4,7 @@ const SHAPES={I:[[1,1,1,1]],O:[[1,1],[1,1]],T:[[0,1,0],[1,1,1]],S:[[0,1,1],[1,1,
 const COLORS={I:'#00e5ff',O:'#ffe35a',T:'#b777ff',S:'#42f5a1',Z:'#ff547d',J:'#5e89ff',L:'#ffac4d'};
 const boardCanvas=document.querySelector('#board'),ctx=boardCanvas.getContext('2d');
 const nextCanvas=document.querySelector('#next'),nextCtx=nextCanvas.getContext('2d');
-const scoreEl=document.querySelector('#score'),bestEl=document.querySelector('#best'),linesEl=document.querySelector('#lines'),levelEl=document.querySelector('#level');
+const scoreEl=document.querySelector('#score'),bestEl=document.querySelector('#best'),bestLabel=document.querySelector('#best-label'),linesEl=document.querySelector('#lines'),levelEl=document.querySelector('#level');
 const overlay=document.querySelector('#overlay'),overlayTitle=document.querySelector('#overlay-title'),overlayMessage=document.querySelector('#overlay-message');
 const startBtn=document.querySelector('#start'),pauseBtn=document.querySelector('#pause'),menuBtn=document.querySelector('#menu');
 const publishBtn=document.querySelector('#publish-score'),publishForm=document.querySelector('#publish-form');
@@ -25,11 +25,20 @@ async function leaderboardRequest(path,options={}){
 const uiDifficultyWrap=document.querySelector('#ui-difficulty-wrap');
 const uiDifficultySelect=document.querySelector('#ui-difficulty');
 let uiDifficulty=Number(uiDifficultySelect.value);
-uiDifficultySelect.addEventListener('change',()=>{uiDifficulty=Number(uiDifficultySelect.value)});
+uiDifficultySelect.addEventListener('change',()=>{uiDifficulty=Number(uiDifficultySelect.value);showBest()});
 
-let board,active,nextPiece,bag=[],score=0,lines=0,level=1,best=0,state='ready',lastTime=0,dropCounter=0;
+let board,active,nextPiece,bag=[],score=0,lines=0,level=1,state='ready',lastTime=0,dropCounter=0;
 let bestBeforeGame=0,publishedThisGame=false;
-try{best=Number(localStorage.getItem('tetripz-best'))||0}catch(_e){}bestEl.textContent=best;
+// Les anciens scores globaux restent dans "tetripz-best" : leur difficulté est inconnue.
+const bestByDifficulty=Array.from({length:5},(_,i)=>{
+  try{return Math.max(0,Number(localStorage.getItem(`tetripz-best-${i}`))||0)}
+  catch(_e){return 0}
+});
+function showBest(){
+  bestEl.textContent=bestByDifficulty[uiDifficulty].toLocaleString('fr-FR');
+  bestLabel.textContent=`RECORD · EFFETS ${uiDifficulty}`;
+}
+showBest();
 function emptyBoard(){return Array.from({length:ROWS},()=>Array(COLS).fill(null))}
 function randomType(){if(!bag.length){bag=Object.keys(SHAPES);for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]]}}return bag.pop()}
 function createPiece(){const type=randomType();return{type,matrix:SHAPES[type].map(row=>row.slice()),x:0,y:0}}
@@ -39,14 +48,14 @@ function move(dx,dy){if(state!=='playing')return false;if(!collides(active.matri
 function rotate(){if(state!=='playing')return;const m=active.matrix;const rotated=m[0].map((_,i)=>m.map(row=>row[i]).reverse());for(const dx of [0,-1,1,-2,2])if(!collides(rotated,active.x+dx,active.y)){active.matrix=rotated;active.x+=dx;break}}
 function hardDrop(){if(state!=='playing')return;let n=0;while(!collides(active.matrix,active.x,active.y+1)){active.y++;n++}score+=n*2;lockPiece()}
 function lockPiece(){for(let r=0;r<active.matrix.length;r++)for(let c=0;c<active.matrix[r].length;c++)if(active.matrix[r][c]){const y=active.y+r;if(y<0){gameOver();return}board[y][active.x+c]=active.type}let cleared=0;for(let y=ROWS-1;y>=0;y--){if(board[y].every(Boolean)){board.splice(y,1);board.unshift(Array(COLS).fill(null));cleared++;y++}}if(cleared){score+=[0,100,300,500,800][cleared]*level;lines+=cleared;level=Math.floor(lines/10)+1}updateStats();spawn();dropCounter=0}
-function updateStats(){scoreEl.textContent=score.toLocaleString('fr-FR');linesEl.textContent=lines;levelEl.textContent=level;if(score>best){best=score;bestEl.textContent=best.toLocaleString('fr-FR');try{localStorage.setItem('tetripz-best',String(best))}catch(_e){}}}
+function updateStats(){scoreEl.textContent=score.toLocaleString('fr-FR');linesEl.textContent=lines;levelEl.textContent=level;if(score>bestByDifficulty[uiDifficulty]){bestByDifficulty[uiDifficulty]=score;showBest();try{localStorage.setItem(`tetripz-best-${uiDifficulty}`,String(score))}catch(_e){}}}
 function showOverlay(title,message,button){
   uiDifficultyWrap.hidden=state!=='ready';
   publishBtn.hidden=true;publishForm.hidden=true;
   overlayTitle.textContent=title;overlayMessage.textContent=message;
   startBtn.textContent=button;overlay.classList.remove('hidden');
 }
-function startGame(){bestBeforeGame=best;publishedThisGame=false;rankingBtn.disabled=true;uiDifficultyWrap.hidden=true;publishBtn.hidden=true;publishForm.hidden=true;wobbleTime=0;brickHue=0;brickSat=1;brickFilter='none';if(uiDifficulty>=3)chooseBrickColors();swellTime=0;spinAngle=0;spinDirection=Math.random()<.5?-1:1;zoomScale=1;zoomFrom=1;zoomTarget=1;zoomElapsed=0;if(uiDifficulty>0){chooseZoomTarget();resetDoubleVision()}board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;menuBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now()}
+function startGame(){bestBeforeGame=bestByDifficulty[uiDifficulty];publishedThisGame=false;rankingBtn.disabled=true;uiDifficultyWrap.hidden=true;publishBtn.hidden=true;publishForm.hidden=true;wobbleTime=0;brickHue=0;brickSat=1;brickFilter='none';if(uiDifficulty>=3)chooseBrickColors();swellTime=0;spinAngle=0;spinDirection=Math.random()<.5?-1:1;zoomScale=1;zoomFrom=1;zoomTarget=1;zoomElapsed=0;if(uiDifficulty>0){chooseZoomTarget();resetDoubleVision()}board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;menuBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now()}
 function gameOver(){
   state='over';pauseBtn.disabled=true;menuBtn.disabled=true;rankingBtn.disabled=false;
   const record=score>0&&score>bestBeforeGame;
