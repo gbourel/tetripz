@@ -28,10 +28,12 @@ Des boutons tactiles sont disponibles sur mobile.
 - Score, lignes, niveaux, accélération progressive
 - Meilleur score enregistré localement
 - Design néon responsive
+- Mode Normal sans effets et mode UI avec houle et zoom aléatoire
+- Intensité du mode UI réglable de 1 (douce) à 4 (extrême) avant la partie
 
 ## Version du jeu
 
-Version actuelle : **v1.0.0** (point de départ du suivi des versions).
+Version actuelle : **v1.1.0** (sélection de difficulté 1 à 4 pour le mode UI).
 
 Le numéro de version est affiché discrètement dans le pied de page du jeu et défini dans `index.html` (élément `#app-version`).
 
