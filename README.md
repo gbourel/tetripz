@@ -19,7 +19,7 @@ Ouvrez `index.html` dans votre navigateur. Cliquez sur **JOUER**.
 | P | Pause / reprendre |
 | R | Recommencer |
 
-Des boutons tactiles sont disponibles sur mobile.
+Des boutons tactiles sont disponibles sur mobile. Le bouton **MENU**, à côté de **PAUSE**, permet de quitter une partie en cours (même en pause) et de choisir un autre niveau sans perdre le record.
 
 ## Fonctionnalités
 
@@ -28,6 +28,7 @@ Des boutons tactiles sont disponibles sur mobile.
 - Score, lignes, niveaux, accélération progressive
 - Meilleur score enregistré localement
 - Design néon responsive
+- Retour au menu depuis une partie en cours ou en pause, sans effacer le meilleur score
 - Un seul sélecteur de niveau dans l'ordre : 0 (jeu normal sans effet), puis 1 (houle douce) à 4 (houle extrême)
 - Houle, zoom aléatoire et effet de vision double uniquement pour les niveaux 1 à 4
 - Rotation très prononcée au niveau 3 et tours complets, avec vitesse ondulante et sens aléatoire, au niveau 4
@@ -35,7 +36,7 @@ Des boutons tactiles sont disponibles sur mobile.
 
 ## Version du jeu
 
-Version actuelle : **v1.3.2** (rotations très amplifiées au niveau 3 et tours complets au niveau 4).
+Version actuelle : **v1.4.0** (bouton Menu pour quitter une partie et choisir un autre niveau).
 
 Le numéro de version est affiché discrètement dans le pied de page du jeu et défini dans `index.html` (élément `#app-version`).
 
