@@ -14,3 +14,13 @@
 /* Houle : le plateau pivote autour de son centre sans modifier la mise en page. */
 .board-wrap{transform-origin:center center;will-change:transform}
 @media(prefers-reduced-motion:reduce){.board-wrap{transform:none!important;will-change:auto}}
+
+/* Sélection du mode avant une partie ou après un game over */
+.mode-menu{display:flex;gap:9px;width:100%;margin:0 0 18px}
+.mode-menu[hidden]{display:none}
+.mode-option{flex:1;min-width:0;padding:12px 8px;background:#1c2947;color:#e4efff;border:2px solid #435477;border-radius:12px;letter-spacing:0}
+.mode-option strong{display:block;font-size:13px;letter-spacing:1px}
+.mode-option span{display:block;margin-top:6px;font-size:10px;font-weight:500;color:#aebedb}
+.mode-option.selected{border-color:var(--accent);background:#11334b;box-shadow:0 0 16px #00f0ff33}
+.mode-option:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@media(max-width:410px){.overlay{padding:10px}.overlay h2{font-size:22px;letter-spacing:1px}.overlay p{margin:12px 0}.mode-menu{gap:5px}.mode-option{padding:10px 4px}.mode-option strong{font-size:11px}.mode-option span{font-size:9px}}
