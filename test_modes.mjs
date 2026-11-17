@@ -324,7 +324,7 @@ assert.equal(autoplay.musicElement.pauses,0);
 console.log('OK : musique dès la page, première interaction, volume, arrêt et indépendance du jeu.');
 
 // Le thème psychédélique conserve les points d'entrée et l'accessibilité du jeu.
-assert.match(html, /ARCADE \/ BLOCK PARTY/);
+assert.match(html, /<header><img class="brand-icon"/);
 assert.match(html, /name="theme-color" content="#130726"/);
 assert.match(html, /script\.js\?v=1\.18\.0/);
 assert.match(html, /style\.css\?v=1\.18\.0/);
