@@ -13,7 +13,7 @@ assert.match(html, /<option value="0" selected>/);
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
 assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
-assert.match(html, /v1\.9\.1/);
+assert.match(html, /v1\.10\.0/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
 assert.equal((html.match(/class="double-vision"/g)||[]).length,3);
 assert.match(js, /uiDifficulty>0&&!reduceMotion\.matches/);
@@ -199,3 +199,45 @@ assert.equal(parsed,true);
 const failedPost=makeRequest(async()=>({ok:false,status:400}));
 await assert.rejects(failedPost('scores',{method:'POST',headers:{Prefer:'return=minimal'}}),/Supabase HTTP 400/);
 console.log('OK : POST 201 sans JSON accepté ; GET lisible ; erreurs HTTP préservées.');
+
+// Les records locaux ne se mélangent pas entre niveaux 0 à 4.
+const recordStart=js.indexOf('let board,active,nextPiece');
+const recordEnd=js.indexOf('function emptyBoard()',recordStart);
+const statsStart=js.indexOf('function updateStats()');
+const statsEnd=js.indexOf('function showOverlay(',statsStart);
+assert.ok(recordStart>=0&&recordEnd>recordStart&&statsStart>=0&&statsEnd>statsStart);
+const simulateRecords=new Function('localStorage',`
+  const bestEl={textContent:''},bestLabel={textContent:''};
+  const scoreEl={textContent:''},linesEl={textContent:''},levelEl={textContent:''};
+  let uiDifficulty=0;
+  ${js.slice(recordStart,recordEnd)}
+  ${js.slice(statsStart,statsEnd)}
+  return {
+    select(level){uiDifficulty=level;showBest();return bestEl.textContent},
+    play(points){score=points;updateStats()},
+    label(){return bestLabel.textContent}
+  };
+`);
+const stored=new Map([['tetripz-best','9000'],['tetripz-best-3','430']]);
+const recordStorage={
+  getItem(key){return stored.get(key)??null},
+  setItem(key,value){stored.set(key,value)}
+};
+const records=simulateRecords(recordStorage);
+assert.equal(records.select(0),'0');
+assert.equal(records.select(3),'430');
+assert.equal(records.label(),'RECORD · EFFETS 3');
+records.play(400);
+assert.equal(stored.get('tetripz-best-3'),'430'); // pas de régression du record
+records.play(555);
+assert.equal(stored.get('tetripz-best-3'),'555');
+assert.equal(records.select(0),'0');
+records.play(120);
+assert.equal(stored.get('tetripz-best-0'),'120');
+for(const level of [1,2,4])assert.equal(records.select(level),'0');
+assert.equal(records.select(3),'555');
+assert.equal(stored.get('tetripz-best'),'9000'); // ancien record conservé, non réattribué
+assert.match(js,/uiDifficultySelect\.addEventListener\('change',\(\)=>\{uiDifficulty=Number\(uiDifficultySelect\.value\);showBest\(\)\}\)/);
+assert.match(js,/function startGame\(\)\{bestBeforeGame=bestByDifficulty\[uiDifficulty\]/);
+assert.match(html,/id="best-label"/);
+console.log('OK : cinq records distincts, changement de difficulté, ancien record conservé.');
