@@ -32,6 +32,7 @@ const english={
   "Chute rapide":"Hard drop",
   "Pause":"Pause",
   "Rejouer":"Restart",
+  "REJOUER":"RESTART",
   "PAUSE":"PAUSE",
   "REPRENDRE":"RESUME",
   "MENU":"MENU",
