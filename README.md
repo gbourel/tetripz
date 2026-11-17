@@ -29,11 +29,11 @@ Des boutons tactiles sont disponibles sur mobile.
 - Meilleur score enregistré localement
 - Design néon responsive
 - Mode Normal sans effets et mode UI avec houle et zoom aléatoire
-- Intensité du mode UI réglable de 1 (douce) à 4 (extrême) avant la partie
+- Difficulté du mode UI réglable de 1 (douce) à 4 (extrême) dans le menu avant la partie (le sélecteur est visible même si le mode Normal est sélectionné)
 
 ## Version du jeu
 
-Version actuelle : **v1.1.0** (sélection de difficulté 1 à 4 pour le mode UI).
+Version actuelle : **v1.1.1** (correction de l'affichage du sélecteur de difficulté).
 
 Le numéro de version est affiché discrètement dans le pied de page du jeu et défini dans `index.html` (élément `#app-version`).
 
