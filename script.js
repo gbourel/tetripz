@@ -78,10 +78,10 @@ const doubleCanvas=document.querySelector('#double-vision'),doubleCtx=doubleCanv
 let doubleMotion={};
 function resetDoubleVision(){
   const k=uiDifficulty;
-  const ranges={x:[-9*k,9*k],y:[-12*k,12*k],rotate:[-3*k,3*k],scale:[1-.08*k,1+.08*k],opacity:[.06+.02*k,.12+.06*k],hue:[0,360]};
+  const ranges={x:[-9*k,9*k],y:[-12*k,12*k],rotate:[-3*k,3*k],scale:[1-.08*k,1+.08*k],opacity:[.06+.02*k,.12+.06*k],hue:[120,240]};
   doubleMotion={};
   for(const [key,[min,max]] of Object.entries(ranges)){
-    const from=key==='scale'?1:key==='opacity'?min:0;
+    const from=key==='scale'?1:key==='opacity'?min:key==='hue'?180:0;
     doubleMotion[key]={from,value:from,to:min+Math.random()*(max-min),min,max,elapsed:0,duration:1+Math.random()*2.8};
   }
 }
