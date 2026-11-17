@@ -30,11 +30,12 @@ Des boutons tactiles sont disponibles sur mobile.
 - Design néon responsive
 - Un seul sélecteur de niveau dans l'ordre : 0 (jeu normal sans effet), puis 1 (houle douce) à 4 (houle extrême)
 - Houle, zoom aléatoire et effet de vision double uniquement pour les niveaux 1 à 4
+- Rotation très prononcée au niveau 3 et tours complets, avec vitesse ondulante et sens aléatoire, au niveau 4
 - Vision double : copie translucide et colorée du plateau, avec rotation, zoom et opacité évoluant indépendamment
 
 ## Version du jeu
 
-Version actuelle : **v1.3.1** (niveaux du menu classés de 0 à 4).
+Version actuelle : **v1.3.2** (rotations très amplifiées au niveau 3 et tours complets au niveau 4).
 
 Le numéro de version est affiché discrètement dans le pied de page du jeu et défini dans `index.html` (élément `#app-version`).
 
