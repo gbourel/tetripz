@@ -219,3 +219,41 @@ footer{border-top:1px solid #b453f566;padding-top:18px;color:#dac4ef}
   .brand-icon{width:52px;height:52px;border-radius:11px}
   .brand-row h1{font-size:clamp(34px,10vw,50px);letter-spacing:2px}
 }
+
+/* v1.15 : commandes accessibles immédiatement sur téléphone, son discret en haut. */
+header .music-controls{
+  position:absolute;right:0;top:0;display:flex;align-items:center;gap:7px;
+  padding:4px 7px;border:1px solid #b25df6;border-radius:12px;
+  background:#1b0b38dd;box-shadow:0 0 14px #ff49c333;
+}
+header .music-controls button{
+  width:34px;height:34px;padding:0;font-size:19px;line-height:1;
+}
+header .music-controls input[type=range]{width:74px;min-width:0}
+header .music-controls output{font-size:10px;min-width:29px}
+.controls summary{cursor:pointer;color:#f4b9f3;font-size:11px;font-weight:800;letter-spacing:1px}
+.controls:not([open]){margin:0}
+.controls[open] summary{margin-bottom:12px}
+@media(max-width:760px){
+  .app{padding-top:8px}
+  header{padding-top:46px;margin-bottom:8px}
+  header .music-controls{top:0;right:0}
+  .game-layout{row-gap:8px}
+  .board-wrap{
+    width:min(100%,max(170px,(100dvh - 290px)/2));
+    justify-self:end;
+  }
+  .touch-controls{grid-column:1/-1;grid-row:2;margin:4px auto 0;gap:7px}
+  .touch-row{gap:7px}
+  .touch-row button,.touch-row:last-of-type button{min-height:48px;padding:6px;font-size:23px}
+  .touch-row button span{display:inline;font-size:10px;margin-left:5px}
+  .touch-hint{display:none}
+  .stats{grid-row:3}
+  .controls{display:none}
+}
+@media(max-width:410px){
+  header{padding-top:44px}
+  .brand-row{margin-top:3px}
+  .side{gap:9px}
+  .next canvas{margin-top:6px}
+}
