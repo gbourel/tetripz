@@ -250,7 +250,7 @@ assert.match(html,/id="music"[^>]*src="tetripz\.mp3"[^>]*loop/);
 assert.match(html,/id="music-volume" type="range"/);
 assert.match(html,/id="music-toggle"[^>]*aria-pressed/);
 assert.match(js,/syncMusic\(\)/);
-const musicStart=js.indexOf('// Musique : la lecture');
+const musicStart=js.indexOf('// Musique indépendante');
 const musicEnd=js.indexOf('const uiDifficultyWrap=',musicStart);
 assert.ok(musicStart>=0&&musicEnd>musicStart);
 const exerciseMusic=new Function('saved',`
