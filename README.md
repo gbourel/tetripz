@@ -28,7 +28,7 @@ Des boutons tactiles sont disponibles sur mobile. Le bouton **MENU**, à côté 
 - Score, lignes, niveaux, accélération progressive
 - Meilleur score enregistré localement **par niveau d'effets (0 à 4)**
 - Bande-son en boucle avec bouton pour l'activer ou l'arrêter, et volume réglable (mémorisé dans le navigateur)
-- Design néon responsive
+- Thème arcade psychédélique et responsive : tétriminos décoratifs, quadrillage, reflets multicolores, panneaux néon et animations respectant « réduire les animations ».
 - Retour au menu depuis une partie en cours ou en pause, sans effacer le meilleur score
 - Un seul sélecteur de niveau dans l'ordre : 0 (jeu normal sans effet), puis 1 (houle douce) à 4 (houle extrême)
 - Houle, zoom aléatoire et effet de vision double uniquement pour les niveaux 1 à 4
@@ -52,7 +52,7 @@ Le jeu lit la musique `tetripz.mp3` en boucle pendant les parties (pause et fin 
 
 ## Version du jeu
 
-Version actuelle : **v1.11.0** (musique de fond en boucle, interrupteur et volume mémorisé).
+Version actuelle : **v1.12.0** (nouvel habillage psychédélique inspiré de Tetris, sans modifier le fonctionnement du jeu).
 
 ## Licence
 
