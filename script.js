@@ -25,7 +25,7 @@ function hardDrop(){if(state!=='playing')return;let n=0;while(!collides(active.m
 function lockPiece(){for(let r=0;r<active.matrix.length;r++)for(let c=0;c<active.matrix[r].length;c++)if(active.matrix[r][c]){const y=active.y+r;if(y<0){gameOver();return}board[y][active.x+c]=active.type}let cleared=0;for(let y=ROWS-1;y>=0;y--){if(board[y].every(Boolean)){board.splice(y,1);board.unshift(Array(COLS).fill(null));cleared++;y++}}if(cleared){score+=[0,100,300,500,800][cleared]*level;lines+=cleared;level=Math.floor(lines/10)+1}updateStats();spawn();dropCounter=0}
 function updateStats(){scoreEl.textContent=score.toLocaleString('fr-FR');linesEl.textContent=lines;levelEl.textContent=level;if(score>best){best=score;bestEl.textContent=best.toLocaleString('fr-FR');try{localStorage.setItem('tetripz-best',String(best))}catch(_e){}}}
 function showOverlay(title,message,button){uiDifficultyWrap.hidden=state==='paused';overlayTitle.textContent=title;overlayMessage.textContent=message;startBtn.textContent=button;overlay.classList.remove('hidden')}
-function startGame(){uiDifficultyWrap.hidden=true;swellTime=0;zoomScale=1;zoomFrom=1;zoomTarget=1;zoomElapsed=0;if(uiDifficulty>0)chooseZoomTarget();board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now()}
+function startGame(){uiDifficultyWrap.hidden=true;swellTime=0;zoomScale=1;zoomFrom=1;zoomTarget=1;zoomElapsed=0;if(uiDifficulty>0){chooseZoomTarget();resetDoubleVision()}board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now()}
 function gameOver(){state='over';pauseBtn.disabled=true;showOverlay('GAME OVER',`Score : ${score.toLocaleString('fr-FR')}`,'REJOUER')}
 function togglePause(){if(state==='playing'){state='paused';pauseBtn.textContent='REPRENDRE';showOverlay('PAUSE','Prends ton temps.','REPRENDRE')}else if(state==='paused'){state='playing';pauseBtn.textContent='PAUSE';overlay.classList.add('hidden');lastTime=performance.now()}}
 function cell(context,x,y,color,size=SIZE,alpha=1){context.globalAlpha=alpha;context.fillStyle=color;context.fillRect(x*size+1,y*size+1,size-2,size-2);context.fillStyle='#ffffff35';context.fillRect(x*size+3,y*size+3,size-6,3);context.globalAlpha=1}
@@ -34,6 +34,41 @@ function drawNext(){nextCtx.fillStyle='#0b1226';nextCtx.fillRect(0,0,120,120);if
 // Houle visuelle : uniquement le plateau, les boutons restent fixes et utilisables.
 const boardWrap=document.querySelector('.board-wrap');
 const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+// Une copie du canvas du jeu, déformée indépendamment de la houle.
+const doubleCanvas=document.querySelector('#double-vision'),doubleCtx=doubleCanvas.getContext('2d');
+let doubleMotion={};
+function resetDoubleVision(){
+  const k=uiDifficulty;
+  const ranges={x:[-9*k,9*k],y:[-12*k,12*k],rotate:[-3*k,3*k],scale:[1-.08*k,1+.08*k],opacity:[.06+.02*k,.12+.06*k],hue:[0,360]};
+  doubleMotion={};
+  for(const [key,[min,max]] of Object.entries(ranges)){
+    const from=key==='scale'?1:key==='opacity'?min:0;
+    doubleMotion[key]={from,value:from,to:min+Math.random()*(max-min),min,max,elapsed:0,duration:1+Math.random()*2.8};
+  }
+}
+function animateDoubleVision(dt){
+  const visible=state==='playing'&&uiDifficulty>0&&!reduceMotion.matches;
+  doubleCanvas.hidden=!visible;
+  if(!visible)return;
+  for(const motion of Object.values(doubleMotion)){
+    motion.elapsed=Math.min(motion.duration,motion.elapsed+Math.max(0,dt)/1000);
+    const p=motion.elapsed/motion.duration;
+    const eased=p*p*(3-2*p);
+    motion.value=motion.from+(motion.to-motion.from)*eased;
+    if(p===1){
+      motion.from=motion.value;
+      motion.to=motion.min+Math.random()*(motion.max-motion.min);
+      motion.elapsed=0;
+      motion.duration=1+Math.random()*2.8;
+    }
+  }
+  const {x,y,rotate,scale,opacity,hue}=doubleMotion;
+  doubleCanvas.style.transform=`translate(${x.value.toFixed(1)}px,${y.value.toFixed(1)}px) rotate(${rotate.value.toFixed(1)}deg) scale(${scale.value.toFixed(3)})`;
+  doubleCanvas.style.opacity=opacity.value.toFixed(3);
+  doubleCanvas.style.filter=`hue-rotate(${hue.value.toFixed(0)}deg) saturate(1.7)`;
+  doubleCtx.clearRect(0,0,300,600);
+  doubleCtx.drawImage(boardCanvas,0,0);
+}
 let swellTime=0;
 // Zoom organique : cible aléatoire, interpolation douce sans à-coups.
 let zoomScale=1,zoomFrom=1,zoomTarget=1,zoomElapsed=0,zoomDuration=2;
@@ -67,7 +102,7 @@ function animateSwell(dt){
   const y=(Math.sin(t*.61+2)*3+Math.sin(t*.35)*1.5)*intensity;
   boardWrap.style.transform=`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) rotate(${angle.toFixed(2)}deg) scale(${zoomScale.toFixed(4)})`;
 }
-function frame(time=0){const dt=Math.min(time-lastTime,100);lastTime=time;if(state==='playing'){dropCounter+=Math.max(0,dt);const interval=Math.max(85,850*Math.pow(.82,level-1));if(dropCounter>=interval){move(0,1);dropCounter=0}}animateSwell(dt);draw();requestAnimationFrame(frame)}
+function frame(time=0){const dt=Math.min(time-lastTime,100);lastTime=time;if(state==='playing'){dropCounter+=Math.max(0,dt);const interval=Math.max(85,850*Math.pow(.82,level-1));if(dropCounter>=interval){move(0,1);dropCounter=0}}animateSwell(dt);draw();animateDoubleVision(dt);requestAnimationFrame(frame)}
 function action(name){if(name==='left')move(-1,0);else if(name==='right')move(1,0);else if(name==='down'){if(move(0,1)){score++;updateStats()}dropCounter=0}else if(name==='rotate')rotate();else if(name==='drop')hardDrop()}
 document.addEventListener('keydown',e=>{const map={ArrowLeft:'left',ArrowRight:'right',ArrowDown:'down',ArrowUp:'rotate',Space:'drop'};const key=e.code==='Space'?'Space':e.key;if(map[key]){e.preventDefault();if(!e.repeat||key!=='Space')action(map[key])}else if(key.toLowerCase()==='p'){e.preventDefault();if(!e.repeat)togglePause()}else if(key.toLowerCase()==='r'){e.preventDefault();if(!e.repeat)startGame()}});
 // Maintenir gauche/droite/bas pour répéter, appui simple pour rotation/chute.
