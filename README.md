@@ -27,6 +27,7 @@ Des boutons tactiles sont disponibles sur mobile. Le bouton **MENU**, à côté 
 - Pièce fantôme et aperçu de la prochaine pièce
 - Score, lignes, niveaux, accélération progressive
 - Meilleur score enregistré localement **par niveau d'effets (0 à 4)**
+- Bande-son en boucle avec bouton pour l'activer ou l'arrêter, et volume réglable (mémorisé dans le navigateur)
 - Design néon responsive
 - Retour au menu depuis une partie en cours ou en pause, sans effacer le meilleur score
 - Un seul sélecteur de niveau dans l'ordre : 0 (jeu normal sans effet), puis 1 (houle douce) à 4 (houle extrême)
@@ -43,9 +44,15 @@ Le Top 10 est séparé pour chacun des cinq niveaux d'effets (0 à 4). Le record
 
 L'ancien record commun (`tetripz-best`) est conservé dans le navigateur sans être attribué à un niveau précis, car sa difficulté d'origine est inconnue. Les records par niveau commencent à zéro si aucun score correspondant n'était déjà enregistré.
 
+## Musique de fond
+
+Le jeu lit la musique `tetripz.mp3` en boucle pendant les parties (pause et fin de partie : arrêt temporaire). Le son ne démarre qu'après le clic **JOUER**, conformément aux restrictions des navigateurs. Le bouton **COUPER / ACTIVER** et le curseur de volume restent disponibles sur ordinateur et mobile. Les préférences `tetripz-music` et `tetripz-volume` sont conservées dans `localStorage`.
+
+**Déploiement du MP3 :** le fichier audio joint doit être placé à la **racine du dépôt GitHub**, sous le nom exact `tetripz.mp3` (à côté de `index.html`). Le code et l'interface peuvent être publiés indépendamment, mais **la musique n'est pas audible tant que le fichier binaire n'est pas présent sur GitHub Pages**.
+
 ## Version du jeu
 
-Version actuelle : **v1.10.0** (record local distinct pour chaque niveau de difficulté, avec affichage et publication adaptés).
+Version actuelle : **v1.11.0** (musique de fond en boucle, interrupteur et volume mémorisé).
 
 ## Licence
 
