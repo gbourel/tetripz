@@ -221,7 +221,7 @@ const simulateRecords=new Function('localStorage',`
     label(){return bestLabel.textContent}
   };
 `);
-const stored=new Map([['tetripz-best','9000'],['tetripz-best-3','430']]);
+const stored=new Map([['tryptis-best','9000'],['tryptis-best-3','430']]);
 const recordStorage={
   getItem(key){return stored.get(key)??null},
   setItem(key,value){stored.set(key,value)}
@@ -231,22 +231,22 @@ assert.equal(records.select(0),'0');
 assert.equal(records.select(3),'430');
 assert.equal(records.label(),'RECORD · EFFETS 3');
 records.play(400);
-assert.equal(stored.get('tetripz-best-3'),'430'); // pas de régression du record
+assert.equal(stored.get('tryptis-best-3'),'430'); // pas de régression du record
 records.play(555);
-assert.equal(stored.get('tetripz-best-3'),'555');
+assert.equal(stored.get('tryptis-best-3'),'555');
 assert.equal(records.select(0),'0');
 records.play(120);
-assert.equal(stored.get('tetripz-best-0'),'120');
+assert.equal(stored.get('tryptis-best-0'),'120');
 for(const level of [1,2,4])assert.equal(records.select(level),'0');
 assert.equal(records.select(3),'555');
-assert.equal(stored.get('tetripz-best'),'9000'); // ancien record conservé, non réattribué
+assert.equal(stored.get('tryptis-best'),'9000'); // ancien record conservé, non réattribué
 assert.match(js,/uiDifficultySelect\.addEventListener\('change',\(\)=>\{uiDifficulty=Number\(uiDifficultySelect\.value\);showBest\(\)\}\)/);
 assert.match(js,/function startGame\(\)\{bestBeforeGame=bestByDifficulty\[uiDifficulty\]/);
 assert.match(html,/id="best-label"/);
 console.log('OK : cinq records distincts, changement de difficulté, ancien record conservé.');
 
 // La musique démarre uniquement pendant une partie, avec volume et arrêt réglables.
-assert.match(html,/id="music"[^>]*src="tetripz\.mp3"[^>]*loop/);
+assert.match(html,/id="music"[^>]*src="tryptis\.mp3"[^>]*loop/);
 assert.match(html,/id="music-volume" type="range"/);
 assert.match(html,/id="music-toggle"[^>]*aria-pressed/);
 assert.match(js,/syncMusic\(\)/);
@@ -291,7 +291,7 @@ const exerciseMusic=new Function('saved',`
     volume(value){volumeElement.value=String(value);volumeElement.handlers.input()}
   };
 `);
-const soundtrack=exerciseMusic([['tetripz-music','off'],['tetripz-volume','65']]);
+const soundtrack=exerciseMusic([['tryptis-music','off'],['tryptis-volume','65']]);
 assert.equal(soundtrack.musicElement.plays,0);
 assert.equal(soundtrack.musicElement.volume,.65);
 assert.equal(soundtrack.musicVolumeValue.textContent,'65 %');
@@ -303,7 +303,7 @@ assert.equal(soundtrack.musicToggle.textContent,'🔊');
 assert.equal(soundtrack.musicToggle.attrs['aria-label'],'Couper la musique');
 soundtrack.volume(25);
 assert.equal(soundtrack.musicElement.volume,.25);
-assert.equal(soundtrack.data.get('tetripz-volume'),'25');
+assert.equal(soundtrack.data.get('tryptis-volume'),'25');
 const pausesBefore=soundtrack.musicElement.pauses;
 soundtrack.state('paused');
 assert.equal(soundtrack.musicElement.pauses,pausesBefore); // La pause du jeu ne coupe pas la musique.
@@ -312,7 +312,7 @@ assert.equal(soundtrack.musicElement.pauses,pausesBefore); // Le menu non plus.
 soundtrack.toggle();
 assert.equal(soundtrack.musicToggle.textContent,'🔇');
 assert.equal(soundtrack.musicToggle.attrs['aria-label'],'Activer la musique');
-assert.equal(soundtrack.data.get('tetripz-music'),'off');
+assert.equal(soundtrack.data.get('tryptis-music'),'off');
 const autoplay=exerciseMusic([]);
 autoplay.start(); // Chargement de page avant JOUER.
 assert.equal(autoplay.musicElement.plays,1);
@@ -385,8 +385,8 @@ assert.match(html,/id="confirm-publish" type="submit"/);
 console.log('OK : français, anglais, langue de secours et traduction complète des libellés.');
 
 // Le logo généré apparaît dans l'en-tête et sert aussi d'icône du site.
-assert.match(html, /<img class="brand-icon" src="assets\/tetripz-logo\.png\?v=1\.16\.0"[^>]*alt="" aria-hidden="true">/);
-assert.match(html, /<link rel="icon" type="image\/png" sizes="64x64" href="assets\/tetripz-icon\.png\?v=1\.16\.0"/);
+assert.match(html, /<img class="brand-icon" src="assets\/tryptis-logo\.png\?v=1\.16\.0"[^>]*alt="" aria-hidden="true">/);
+assert.match(html, /<link rel="icon" type="image\/png" sizes="64x64" href="assets\/tryptis-icon\.png\?v=1\.16\.0"/);
 assert.match(css, /\.brand-row\{display:flex;justify-content:center/);
 assert.match(css, /\.brand-icon\{[\s\S]*?width:80px;height:80px/);
 assert.match(css, /@media\(max-width:410px\)\{\s*\.brand-row\{gap:8px\}/);
@@ -408,5 +408,5 @@ assert.match(html, /<title>Tryptis — Psychedelic Blocks<\/title>/);
 assert.match(html, /aria-label="Jeu Tryptis" data-i18n-aria-label="Jeu Tryptis"/);
 assert.match(html, /<\/span> · TRYPTIS <span id="app-version"/);
 assert.equal(en.translate('Jeu Tryptis'),'Tryptis game');
-assert.doesNotMatch(html, /Tetripz|TETRIPZ/);
+assert.doesNotMatch(html, /tryptis|tryptis/);
 console.log('OK : nouveau nom Tryptis, titres et traductions.');

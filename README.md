@@ -29,7 +29,7 @@ Sur mobile, les boutons tactiles sont placés directement sous le plateau, avant
 - Meilleur score enregistré localement **par niveau d'effets (0 à 4)**
 - Bande-son en boucle avec icône de haut-parleur et volume compact en haut de page (préférences mémorisées dans le navigateur)
 - Thème arcade psychédélique et responsive : tétriminos décoratifs, quadrillage, reflets multicolores, panneaux néon et animations respectant « réduire les animations ».
-- Logo psychédélique en tétriminos 3D généré pour Tryptis (`assets/tetripz-logo.png`) ; la même icône est affichée près du titre et utilisée comme favicon du navigateur.
+- Logo psychédélique en tétriminos 3D généré pour Tryptis (`assets/tryptis-logo.png`) ; la même icône est affichée près du titre et utilisée comme favicon du navigateur.
 - Retour au menu depuis une partie en cours ou en pause, sans effacer le meilleur score
 - Un seul sélecteur de niveau dans l'ordre : 0 (jeu normal sans effet), puis 1 (houle douce) à 4 (houle extrême)
 - Houle, zoom aléatoire et effet de vision double uniquement pour les niveaux 1 à 4
@@ -41,9 +41,9 @@ Sur mobile, les boutons tactiles sont placés directement sous le plateau, avant
 
 ## Classement mondial
 
-Le Top 10 est séparé pour chacun des cinq niveaux d'effets (0 à 4). Le record local s'enregistre automatiquement et **séparément pour chaque difficulté** (`tetripz-best-0` à `tetripz-best-4`), qu'il soit publié ou non. Le pseudo reste facultatif, seulement après un nouveau record du niveau choisi.
+Le Top 10 est séparé pour chacun des cinq niveaux d'effets (0 à 4). Le record local s'enregistre automatiquement et **séparément pour chaque difficulté** (`tryptis-best-0` à `tryptis-best-4`), qu'il soit publié ou non. Le pseudo reste facultatif, seulement après un nouveau record du niveau choisi.
 
-L'ancien record commun (`tetripz-best`) est conservé dans le navigateur sans être attribué à un niveau précis, car sa difficulté d'origine est inconnue. Les records par niveau commencent à zéro si aucun score correspondant n'était déjà enregistré.
+L'ancien record commun (`tryptis-best`) est conservé dans le navigateur sans être attribué à un niveau précis, car sa difficulté d'origine est inconnue. Les records par niveau commencent à zéro si aucun score correspondant n'était déjà enregistré.
 
 ## Langue de l'interface
 
@@ -51,11 +51,11 @@ L'interface s'affiche automatiquement en **français** ou en **anglais** selon l
 
 ## Musique de fond
 
-Le jeu tente de lire la musique `tetripz.mp3` en boucle dès l'ouverture de la page, indépendamment de la partie (menu, pause, fin de partie). Les navigateurs peuvent bloquer la lecture automatique avec son : dans ce cas, la musique démarre dès la première interaction (clic, toucher ou touche du clavier), sans avoir besoin de lancer une partie. L'icône **🔊 / 🔇** et le curseur de volume sont disponibles en haut de page sur ordinateur et mobile. Les préférences `tetripz-music` et `tetripz-volume` sont conservées dans `localStorage`.
+Le jeu tente de lire la musique `tryptis.mp3` en boucle dès l'ouverture de la page, indépendamment de la partie (menu, pause, fin de partie). Les navigateurs peuvent bloquer la lecture automatique avec son : dans ce cas, la musique démarre dès la première interaction (clic, toucher ou touche du clavier), sans avoir besoin de lancer une partie. L'icône **🔊 / 🔇** et le curseur de volume sont disponibles en haut de page sur ordinateur et mobile. Les préférences `tryptis-music` et `tryptis-volume` sont conservées dans `localStorage`.
 
-**Déploiement du MP3 :** le fichier audio joint doit être placé à la **racine du dépôt GitHub**, sous le nom exact `tetripz.mp3` (à côté de `index.html`). Le code et l'interface peuvent être publiés indépendamment, mais **la musique n'est pas audible tant que le fichier binaire n'est pas présent sur GitHub Pages**.
+**Déploiement du MP3 :** le fichier audio joint doit être placé à la **racine du dépôt GitHub**, sous le nom exact `tryptis.mp3` (à côté de `index.html`). Le code et l'interface peuvent être publiés indépendamment, mais **la musique n'est pas audible tant que le fichier binaire n'est pas présent sur GitHub Pages**.
 
-Les anciens noms de fichiers (`tetripz.mp3`, images), clés `localStorage` et l'adresse GitHub Pages sont conservés pour ne pas perdre les données ni casser les liens.
+Les anciens noms de fichiers (`tryptis.mp3`, images), clés `localStorage` et l'adresse GitHub Pages sont conservés pour ne pas perdre les données ni casser les liens.
 
 ## Version du jeu
 

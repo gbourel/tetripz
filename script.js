@@ -108,8 +108,8 @@ const music=document.querySelector('#music'),musicToggle=document.querySelector(
 const musicVolume=document.querySelector('#music-volume'),musicVolumeValue=document.querySelector('#music-volume-value');
 let musicEnabled=true;
 try{
-  musicEnabled=localStorage.getItem('tetripz-music')!=='off';
-  const saved=localStorage.getItem('tetripz-volume');
+  musicEnabled=localStorage.getItem('tryptis-music')!=='off';
+  const saved=localStorage.getItem('tryptis-volume');
   if(saved!==null&&Number(saved)>=0&&Number(saved)<=100)musicVolume.value=String(Number(saved));
 }catch(_e){}
 music.volume=Number(musicVolume.value)/100;
@@ -129,13 +129,13 @@ document.addEventListener('pointerdown',unlockMusic,{once:true});
 document.addEventListener('keydown',unlockMusic,{once:true});
 musicToggle.addEventListener('click',()=>{
   musicEnabled=!musicEnabled;
-  try{localStorage.setItem('tetripz-music',musicEnabled?'on':'off')}catch(_e){}
+  try{localStorage.setItem('tryptis-music',musicEnabled?'on':'off')}catch(_e){}
   syncMusic();
 });
 musicVolume.addEventListener('input',()=>{
   music.volume=Number(musicVolume.value)/100;
   musicVolumeValue.textContent=`${musicVolume.value} %`;
-  try{localStorage.setItem('tetripz-volume',musicVolume.value)}catch(_e){}
+  try{localStorage.setItem('tryptis-volume',musicVolume.value)}catch(_e){}
 });
 const uiDifficultyWrap=document.querySelector('#ui-difficulty-wrap');
 const uiDifficultySelect=document.querySelector('#ui-difficulty');
@@ -144,9 +144,9 @@ uiDifficultySelect.addEventListener('change',()=>{uiDifficulty=Number(uiDifficul
 
 let board,active,nextPiece,bag=[],score=0,lines=0,level=1,state='ready',lastTime=0,dropCounter=0;
 let bestBeforeGame=0,publishedThisGame=false;
-// Les anciens scores globaux restent dans "tetripz-best" : leur difficulté est inconnue.
+// Les anciens scores globaux restent dans "tryptis-best" : leur difficulté est inconnue.
 const bestByDifficulty=Array.from({length:5},(_,i)=>{
-  try{return Math.max(0,Number(localStorage.getItem(`tetripz-best-${i}`))||0)}
+  try{return Math.max(0,Number(localStorage.getItem(`tryptis-best-${i}`))||0)}
   catch(_e){return 0}
 });
 function showBest(){
@@ -163,7 +163,7 @@ function move(dx,dy){if(state!=='playing')return false;if(!collides(active.matri
 function rotate(){if(state!=='playing')return;const m=active.matrix;const rotated=m[0].map((_,i)=>m.map(row=>row[i]).reverse());for(const dx of [0,-1,1,-2,2])if(!collides(rotated,active.x+dx,active.y)){active.matrix=rotated;active.x+=dx;break}}
 function hardDrop(){if(state!=='playing')return;let n=0;while(!collides(active.matrix,active.x,active.y+1)){active.y++;n++}score+=n*2;lockPiece()}
 function lockPiece(){for(let r=0;r<active.matrix.length;r++)for(let c=0;c<active.matrix[r].length;c++)if(active.matrix[r][c]){const y=active.y+r;if(y<0){gameOver();return}board[y][active.x+c]=active.type}let cleared=0;for(let y=ROWS-1;y>=0;y--){if(board[y].every(Boolean)){board.splice(y,1);board.unshift(Array(COLS).fill(null));cleared++;y++}}if(cleared){score+=[0,100,300,500,800][cleared]*level;lines+=cleared;level=Math.floor(lines/10)+1}updateStats();spawn();dropCounter=0}
-function updateStats(){scoreEl.textContent=formatScore(score);linesEl.textContent=lines;levelEl.textContent=level;if(score>bestByDifficulty[uiDifficulty]){bestByDifficulty[uiDifficulty]=score;showBest();try{localStorage.setItem(`tetripz-best-${uiDifficulty}`,String(score))}catch(_e){}}}
+function updateStats(){scoreEl.textContent=formatScore(score);linesEl.textContent=lines;levelEl.textContent=level;if(score>bestByDifficulty[uiDifficulty]){bestByDifficulty[uiDifficulty]=score;showBest();try{localStorage.setItem(`tryptis-best-${uiDifficulty}`,String(score))}catch(_e){}}}
 function showOverlay(title,message,button){
   uiDifficultyWrap.hidden=state!=='ready';
   publishBtn.hidden=true;publishForm.hidden=true;
