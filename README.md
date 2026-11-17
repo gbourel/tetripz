@@ -19,7 +19,7 @@ Ouvrez `index.html` dans votre navigateur. Cliquez sur **JOUER**.
 | P | Pause / reprendre |
 | R | Recommencer |
 
-Sur mobile, les boutons tactiles sont placés directement sous le plateau, avant les scores. L'aide aux raccourcis clavier est repliée sur ordinateur et masquée sur téléphone. Le bouton **MENU**, à côté de **PAUSE**, permet de quitter une partie en cours (même en pause) et de choisir un autre niveau sans perdre le record.
+Sur mobile, les boutons tactiles sont placés au-dessus du plateau ; le classement est juste sous le plateau. Le logo est affiché au-dessus du titre et les slogans superflus sont supprimés. L'aide aux raccourcis clavier est repliée sur ordinateur et masquée sur téléphone. Le bouton **MENU**, à côté de **PAUSE**, permet de quitter une partie en cours (même en pause) et de choisir un autre niveau sans perdre le record.
 
 ## Fonctionnalités
 
@@ -59,7 +59,7 @@ Les anciens noms de fichiers (`tryptis.mp3`, images), clés `localStorage` et l'
 
 ## Version du jeu
 
-Version actuelle : **v1.17.0** (réduction du CPU : 30 FPS maximum, fond mis en cache, copies fantômes et rendus inutiles évités, halo fixe).
+Version actuelle : **v1.18.0** (commandes tactiles au-dessus du plateau, classement en dessous, logo déplacé et slogans supprimés).
 
 ## Licence
 
