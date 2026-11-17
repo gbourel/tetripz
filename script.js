@@ -6,7 +6,7 @@ const boardCanvas=document.querySelector('#board'),ctx=boardCanvas.getContext('2
 const nextCanvas=document.querySelector('#next'),nextCtx=nextCanvas.getContext('2d');
 const scoreEl=document.querySelector('#score'),bestEl=document.querySelector('#best'),linesEl=document.querySelector('#lines'),levelEl=document.querySelector('#level');
 const overlay=document.querySelector('#overlay'),overlayTitle=document.querySelector('#overlay-title'),overlayMessage=document.querySelector('#overlay-message');
-const startBtn=document.querySelector('#start'),pauseBtn=document.querySelector('#pause');
+const startBtn=document.querySelector('#start'),pauseBtn=document.querySelector('#pause'),menuBtn=document.querySelector('#menu');
 const uiDifficultyWrap=document.querySelector('#ui-difficulty-wrap');
 const uiDifficultySelect=document.querySelector('#ui-difficulty');
 let uiDifficulty=Number(uiDifficultySelect.value);
@@ -25,8 +25,18 @@ function hardDrop(){if(state!=='playing')return;let n=0;while(!collides(active.m
 function lockPiece(){for(let r=0;r<active.matrix.length;r++)for(let c=0;c<active.matrix[r].length;c++)if(active.matrix[r][c]){const y=active.y+r;if(y<0){gameOver();return}board[y][active.x+c]=active.type}let cleared=0;for(let y=ROWS-1;y>=0;y--){if(board[y].every(Boolean)){board.splice(y,1);board.unshift(Array(COLS).fill(null));cleared++;y++}}if(cleared){score+=[0,100,300,500,800][cleared]*level;lines+=cleared;level=Math.floor(lines/10)+1}updateStats();spawn();dropCounter=0}
 function updateStats(){scoreEl.textContent=score.toLocaleString('fr-FR');linesEl.textContent=lines;levelEl.textContent=level;if(score>best){best=score;bestEl.textContent=best.toLocaleString('fr-FR');try{localStorage.setItem('tetripz-best',String(best))}catch(_e){}}}
 function showOverlay(title,message,button){uiDifficultyWrap.hidden=state==='paused';overlayTitle.textContent=title;overlayMessage.textContent=message;startBtn.textContent=button;overlay.classList.remove('hidden')}
-function startGame(){uiDifficultyWrap.hidden=true;swellTime=0;spinAngle=0;spinDirection=Math.random()<.5?-1:1;zoomScale=1;zoomFrom=1;zoomTarget=1;zoomElapsed=0;if(uiDifficulty>0){chooseZoomTarget();resetDoubleVision()}board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now()}
-function gameOver(){state='over';pauseBtn.disabled=true;showOverlay('GAME OVER',`Score : ${score.toLocaleString('fr-FR')}`,'REJOUER')}
+function startGame(){uiDifficultyWrap.hidden=true;swellTime=0;spinAngle=0;spinDirection=Math.random()<.5?-1:1;zoomScale=1;zoomFrom=1;zoomTarget=1;zoomElapsed=0;if(uiDifficulty>0){chooseZoomTarget();resetDoubleVision()}board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;menuBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now()}
+function gameOver(){state='over';pauseBtn.disabled=true;menuBtn.disabled=true;showOverlay('GAME OVER',`Score : ${score.toLocaleString('fr-FR')}`,'REJOUER')}
+function goToMenu(){
+  if(state!=='playing'&&state!=='paused')return;
+  state='ready';
+  board=emptyBoard();active=null;nextPiece=null;
+  score=0;lines=0;level=1;dropCounter=0;
+  updateStats();drawNext();
+  boardWrap.style.transform='none';doubleCanvas.hidden=true;
+  pauseBtn.disabled=true;pauseBtn.textContent='PAUSE';menuBtn.disabled=true;
+  showOverlay('CHOISIS TON NIVEAU','Choisis l’intensité des effets.','JOUER');
+}
 function togglePause(){if(state==='playing'){state='paused';pauseBtn.textContent='REPRENDRE';showOverlay('PAUSE','Prends ton temps.','REPRENDRE')}else if(state==='paused'){state='playing';pauseBtn.textContent='PAUSE';overlay.classList.add('hidden');lastTime=performance.now()}}
 function cell(context,x,y,color,size=SIZE,alpha=1){context.globalAlpha=alpha;context.fillStyle=color;context.fillRect(x*size+1,y*size+1,size-2,size-2);context.fillStyle='#ffffff35';context.fillRect(x*size+3,y*size+3,size-6,3);context.globalAlpha=1}
 function draw(){ctx.fillStyle='#0b1226';ctx.fillRect(0,0,300,600);ctx.strokeStyle='#1a2742';ctx.lineWidth=.6;for(let x=0;x<=COLS;x++){ctx.beginPath();ctx.moveTo(x*SIZE,0);ctx.lineTo(x*SIZE,600);ctx.stroke()}for(let y=0;y<=ROWS;y++){ctx.beginPath();ctx.moveTo(0,y*SIZE);ctx.lineTo(300,y*SIZE);ctx.stroke()}if(!board)return;for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)if(board[y][x])cell(ctx,x,y,COLORS[board[y][x]]);if(active&&state!=='over'){let ghostY=active.y;while(!collides(active.matrix,active.x,ghostY+1))ghostY++;active.matrix.forEach((row,r)=>row.forEach((v,c)=>{if(v){cell(ctx,active.x+c,ghostY+r,COLORS[active.type],SIZE,.22);cell(ctx,active.x+c,active.y+r,COLORS[active.type])}}))}}
@@ -158,5 +168,5 @@ boardCanvas.addEventListener('pointerup',e=>{
   boardTouch=null;
 });
 boardCanvas.addEventListener('pointercancel',()=>{boardTouch=null});
-startBtn.addEventListener('click',()=>state==='paused'?togglePause():startGame());pauseBtn.addEventListener('click',togglePause);
+startBtn.addEventListener('click',()=>state==='paused'?togglePause():startGame());pauseBtn.addEventListener('click',togglePause);menuBtn.addEventListener('click',goToMenu);
 board=emptyBoard();showOverlay('CHOISIS TON NIVEAU','Choisis l’intensité des effets.','JOUER');requestAnimationFrame(frame);
