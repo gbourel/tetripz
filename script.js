@@ -101,7 +101,7 @@ async function leaderboardRequest(path,options={}){
   if(!response.ok)throw Error(`Supabase HTTP ${response.status}`);
   return response.status===204||options.headers?.Prefer==='return=minimal'?null:response.json();
 }
-// Musique : la lecture démarre seulement après JOUER (geste utilisateur).
+// Musique indépendante de la partie : tentative immédiate, puis premier geste si autoplay bloqué.
 const music=document.querySelector('#music'),musicToggle=document.querySelector('#music-toggle');
 const musicVolume=document.querySelector('#music-volume'),musicVolumeValue=document.querySelector('#music-volume-value');
 let musicEnabled=true;
@@ -115,9 +115,14 @@ musicVolumeValue.textContent=`${musicVolume.value} %`;
 function syncMusic(){
   musicToggle.textContent=tr(musicEnabled?'COUPER':'ACTIVER');
   musicToggle.setAttribute('aria-pressed',String(musicEnabled));
-  if(musicEnabled&&state==='playing')music.play().catch(()=>{}); // Un refus audio ne bloque pas le jeu.
+  if(musicEnabled)music.play().catch(()=>{}); // Autoplay peut être refusé avant une interaction.
   else music.pause();
 }
+function unlockMusic(){
+  if(musicEnabled&&music.paused)syncMusic();
+}
+document.addEventListener('pointerdown',unlockMusic,{once:true});
+document.addEventListener('keydown',unlockMusic,{once:true});
 musicToggle.addEventListener('click',()=>{
   musicEnabled=!musicEnabled;
   try{localStorage.setItem('tetripz-music',musicEnabled?'on':'off')}catch(_e){}
