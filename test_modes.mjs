@@ -7,12 +7,12 @@ const js = readFileSync('script.js', 'utf8');
 const css = readFileSync('style.css', 'utf8');
 const options = [...html.matchAll(/<option value="([0-4])"/g)].map(match => match[1]);
 
-assert.deepEqual(options, ['1', '2', '3', '4', '0']);
+assert.deepEqual(options, ['0', '1', '2', '3', '4']);
 assert.match(html, /<option value="0" selected>/);
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
 assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
-assert.match(html, /v1\.3\.0/);
+assert.match(html, /v1\.3\.1/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
 assert.match(js, /doubleCanvas\.hidden=!visible/);
 assert.match(js, /uiDifficulty>0&&!reduceMotion\.matches/);
