@@ -39,6 +39,8 @@ const english={
   "CLASSEMENT":"LEADERBOARD",
   "MUSIQUE":"MUSIC",
   "COUPER":"MUTE",
+  "Couper la musique":"Mute music",
+  "Activer la musique":"Unmute music",
   "ACTIVER":"UNMUTE",
   "VOLUME":"VOLUME",
   "DESCENDRE":"DOWN",
@@ -113,7 +115,9 @@ try{
 music.volume=Number(musicVolume.value)/100;
 musicVolumeValue.textContent=`${musicVolume.value} %`;
 function syncMusic(){
-  musicToggle.textContent=tr(musicEnabled?'COUPER':'ACTIVER');
+  musicToggle.textContent=musicEnabled?'🔊':'🔇';
+  musicToggle.setAttribute('aria-label',tr(musicEnabled?'Couper la musique':'Activer la musique'));
+  musicToggle.title=musicToggle.getAttribute('aria-label');
   musicToggle.setAttribute('aria-pressed',String(musicEnabled));
   if(musicEnabled)music.play().catch(()=>{}); // Autoplay peut être refusé avant une interaction.
   else music.pause();
