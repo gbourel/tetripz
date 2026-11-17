@@ -22,6 +22,33 @@ async function leaderboardRequest(path,options={}){
   if(!response.ok)throw Error(`Supabase HTTP ${response.status}`);
   return response.status===204||options.headers?.Prefer==='return=minimal'?null:response.json();
 }
+// Musique : la lecture démarre seulement après JOUER (geste utilisateur).
+const music=document.querySelector('#music'),musicToggle=document.querySelector('#music-toggle');
+const musicVolume=document.querySelector('#music-volume'),musicVolumeValue=document.querySelector('#music-volume-value');
+let musicEnabled=true;
+try{
+  musicEnabled=localStorage.getItem('tetripz-music')!=='off';
+  const saved=localStorage.getItem('tetripz-volume');
+  if(saved!==null&&Number(saved)>=0&&Number(saved)<=100)musicVolume.value=String(Number(saved));
+}catch(_e){}
+music.volume=Number(musicVolume.value)/100;
+musicVolumeValue.textContent=`${musicVolume.value} %`;
+function syncMusic(){
+  musicToggle.textContent=musicEnabled?'COUPER':'ACTIVER';
+  musicToggle.setAttribute('aria-pressed',String(musicEnabled));
+  if(musicEnabled&&state==='playing')music.play().catch(()=>{}); // Un refus audio ne bloque pas le jeu.
+  else music.pause();
+}
+musicToggle.addEventListener('click',()=>{
+  musicEnabled=!musicEnabled;
+  try{localStorage.setItem('tetripz-music',musicEnabled?'on':'off')}catch(_e){}
+  syncMusic();
+});
+musicVolume.addEventListener('input',()=>{
+  music.volume=Number(musicVolume.value)/100;
+  musicVolumeValue.textContent=`${musicVolume.value} %`;
+  try{localStorage.setItem('tetripz-volume',musicVolume.value)}catch(_e){}
+});
 const uiDifficultyWrap=document.querySelector('#ui-difficulty-wrap');
 const uiDifficultySelect=document.querySelector('#ui-difficulty');
 let uiDifficulty=Number(uiDifficultySelect.value);
@@ -55,7 +82,7 @@ function showOverlay(title,message,button){
   overlayTitle.textContent=title;overlayMessage.textContent=message;
   startBtn.textContent=button;overlay.classList.remove('hidden');
 }
-function startGame(){bestBeforeGame=bestByDifficulty[uiDifficulty];publishedThisGame=false;rankingBtn.disabled=true;uiDifficultyWrap.hidden=true;publishBtn.hidden=true;publishForm.hidden=true;wobbleTime=0;brickHue=0;brickSat=1;brickFilter='none';if(uiDifficulty>=3)chooseBrickColors();swellTime=0;spinAngle=0;spinDirection=Math.random()<.5?-1:1;zoomScale=1;zoomFrom=1;zoomTarget=1;zoomElapsed=0;if(uiDifficulty>0){chooseZoomTarget();resetDoubleVision()}board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;menuBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now()}
+function startGame(){bestBeforeGame=bestByDifficulty[uiDifficulty];publishedThisGame=false;rankingBtn.disabled=true;uiDifficultyWrap.hidden=true;publishBtn.hidden=true;publishForm.hidden=true;wobbleTime=0;brickHue=0;brickSat=1;brickFilter='none';if(uiDifficulty>=3)chooseBrickColors();swellTime=0;spinAngle=0;spinDirection=Math.random()<.5?-1:1;zoomScale=1;zoomFrom=1;zoomTarget=1;zoomElapsed=0;if(uiDifficulty>0){chooseZoomTarget();resetDoubleVision()}board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;menuBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now();syncMusic()}
 function gameOver(){
   state='over';pauseBtn.disabled=true;menuBtn.disabled=true;rankingBtn.disabled=false;
   const record=score>0&&score>bestBeforeGame;
@@ -63,6 +90,7 @@ function gameOver(){
   publishBtn.hidden=!record;
   publishBtn.disabled=!leaderboardReady();
   if(record&&!leaderboardReady())overlayMessage.textContent+=' Classement mondial à configurer.';
+  syncMusic();
 }
 function goToMenu(){
   if(state!=='playing'&&state!=='paused')return;
@@ -73,6 +101,7 @@ function goToMenu(){
   boardWrap.style.transform='none';ghostLayers.forEach(layer=>{layer.canvas.hidden=true});
   pauseBtn.disabled=true;pauseBtn.textContent='PAUSE';menuBtn.disabled=true;rankingBtn.disabled=false;
   showOverlay('CHOISIS TON NIVEAU','Choisis l’intensité des effets.','JOUER');
+  syncMusic();
 }
 // Aucune publication automatique : le pseudo n'est demandé qu'après un clic volontaire.
 publishBtn.addEventListener('click',()=>{
@@ -125,7 +154,7 @@ rankingBtn.addEventListener('click',()=>{
 });
 rankingLevel.addEventListener('change',loadRanking);
 document.querySelector('#ranking-close').addEventListener('click',()=>rankingDialog.close());
-function togglePause(){if(state==='playing'){state='paused';pauseBtn.textContent='REPRENDRE';showOverlay('PAUSE','Prends ton temps.','REPRENDRE')}else if(state==='paused'){state='playing';pauseBtn.textContent='PAUSE';overlay.classList.add('hidden');lastTime=performance.now()}}
+function togglePause(){if(state==='playing'){state='paused';pauseBtn.textContent='REPRENDRE';showOverlay('PAUSE','Prends ton temps.','REPRENDRE')}else if(state==='paused'){state='playing';pauseBtn.textContent='PAUSE';overlay.classList.add('hidden');lastTime=performance.now()}syncMusic()}
 let wobbleTime=0;
 function cell(context,x,y,color,size=SIZE,alpha=1){
   const power=state==='playing'&&!reduceMotion.matches?[0,0,.045,.095,.16][uiDifficulty]:0;
