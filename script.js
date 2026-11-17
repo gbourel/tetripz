@@ -29,6 +29,56 @@ function drawNext(){nextCtx.fillStyle='#0b1226';nextCtx.fillRect(0,0,120,120);if
 function frame(time=0){const dt=Math.min(time-lastTime,100);lastTime=time;if(state==='playing'){dropCounter+=Math.max(0,dt);const interval=Math.max(85,850*Math.pow(.82,level-1));if(dropCounter>=interval){move(0,1);dropCounter=0}}draw();requestAnimationFrame(frame)}
 function action(name){if(name==='left')move(-1,0);else if(name==='right')move(1,0);else if(name==='down'){if(move(0,1)){score++;updateStats()}dropCounter=0}else if(name==='rotate')rotate();else if(name==='drop')hardDrop()}
 document.addEventListener('keydown',e=>{const map={ArrowLeft:'left',ArrowRight:'right',ArrowDown:'down',ArrowUp:'rotate',Space:'drop'};const key=e.code==='Space'?'Space':e.key;if(map[key]){e.preventDefault();if(!e.repeat||key!=='Space')action(map[key])}else if(key.toLowerCase()==='p'){e.preventDefault();if(!e.repeat)togglePause()}else if(key.toLowerCase()==='r'){e.preventDefault();if(!e.repeat)startGame()}});
-document.querySelectorAll('[data-action]').forEach(btn=>btn.addEventListener('click',()=>action(btn.dataset.action)));
+// Maintenir gauche/droite/bas pour répéter, appui simple pour rotation/chute.
+document.querySelectorAll('[data-action]').forEach(btn=>{
+  const name=btn.dataset.action;
+  let delayTimer=null,repeatTimer=null,activePointer=null;
+  const stop=()=>{
+    clearTimeout(delayTimer);clearInterval(repeatTimer);
+    delayTimer=null;repeatTimer=null;activePointer=null;
+  };
+  btn.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    e.preventDefault();
+    stop();
+    activePointer=e.pointerId;
+    try{btn.setPointerCapture(e.pointerId)}catch(_e){}
+    action(name);
+    if(['left','right','down'].includes(name)){
+      delayTimer=setTimeout(()=>{repeatTimer=setInterval(()=>action(name),85)},230);
+    }
+  });
+  btn.addEventListener('pointerup',stop);
+  btn.addEventListener('pointercancel',stop);
+  btn.addEventListener('lostpointercapture',stop);
+  btn.addEventListener('contextmenu',e=>e.preventDefault());
+});
+// Toucher le plateau fait pivoter la pièce ; glisser horizontalement la déplace.
+let boardTouch=null;
+boardCanvas.addEventListener('pointerdown',e=>{
+  if(e.pointerType==='mouse'||state!=='playing')return;
+  e.preventDefault();
+  boardTouch={id:e.pointerId,x:e.clientX,y:e.clientY,moved:false};
+  try{boardCanvas.setPointerCapture(e.pointerId)}catch(_e){}
+});
+boardCanvas.addEventListener('pointermove',e=>{
+  if(!boardTouch||e.pointerId!==boardTouch.id||state!=='playing')return;
+  e.preventDefault();
+  const cellWidth=boardCanvas.getBoundingClientRect().width/COLS;
+  const dx=e.clientX-boardTouch.x;
+  if(Math.abs(dx)>=cellWidth*.75){
+    const steps=Math.trunc(dx/(cellWidth*.75));
+    for(let i=0;i<Math.min(Math.abs(steps),COLS);i++)action(steps>0?'right':'left');
+    boardTouch.x+=steps*cellWidth*.75;
+    boardTouch.moved=true;
+  }
+});
+boardCanvas.addEventListener('pointerup',e=>{
+  if(!boardTouch||e.pointerId!==boardTouch.id)return;
+  e.preventDefault();
+  if(!boardTouch.moved)action('rotate');
+  boardTouch=null;
+});
+boardCanvas.addEventListener('pointercancel',()=>{boardTouch=null});
 startBtn.addEventListener('click',()=>state==='paused'?togglePause():startGame());pauseBtn.addEventListener('click',togglePause);
 board=emptyBoard();showOverlay('PRÊT ?','Fais tomber les blocs !','JOUER');requestAnimationFrame(frame);
