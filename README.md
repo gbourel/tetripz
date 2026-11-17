@@ -28,12 +28,12 @@ Des boutons tactiles sont disponibles sur mobile.
 - Score, lignes, niveaux, accélération progressive
 - Meilleur score enregistré localement
 - Design néon responsive
-- Mode Normal sans effets et mode UI avec houle et zoom aléatoire
-- Difficulté du mode UI réglable de 1 (douce) à 4 (extrême) dans le menu avant la partie (le sélecteur est visible même si le mode Normal est sélectionné)
+- Un seul sélecteur de niveau : 1 (houle douce) à 4 (houle extrême), puis 0 (jeu normal sans effet) en bas de liste
+- Houle et zoom aléatoire uniquement pour les niveaux 1 à 4
 
 ## Version du jeu
 
-Version actuelle : **v1.1.1** (correction de l'affichage du sélecteur de difficulté).
+Version actuelle : **v1.2.0** (mode Normal remplacé par le niveau 0, sous les niveaux de houle 1 à 4).
 
 Le numéro de version est affiché discrètement dans le pied de page du jeu et défini dans `index.html` (élément `#app-version`).
 
