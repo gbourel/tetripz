@@ -26,7 +26,7 @@ Des boutons tactiles sont disponibles sur mobile. Le bouton **MENU**, à côté 
 - Sept pièces et tirage aléatoire par sac de 7
 - Pièce fantôme et aperçu de la prochaine pièce
 - Score, lignes, niveaux, accélération progressive
-- Meilleur score enregistré localement
+- Meilleur score enregistré localement **par niveau d'effets (0 à 4)**
 - Design néon responsive
 - Retour au menu depuis une partie en cours ou en pause, sans effacer le meilleur score
 - Un seul sélecteur de niveau dans l'ordre : 0 (jeu normal sans effet), puis 1 (houle douce) à 4 (houle extrême)
@@ -39,11 +39,13 @@ Des boutons tactiles sont disponibles sur mobile. Le bouton **MENU**, à côté 
 
 ## Classement mondial
 
-Le Top 10 est séparé pour chacun des cinq niveaux d'effets (0 à 4). Le record local s'enregistre toujours automatiquement dans `localStorage`, qu'il soit publié ou non. La saisie du pseudo est optionnelle et il n'y a pas de création de compte.
+Le Top 10 est séparé pour chacun des cinq niveaux d'effets (0 à 4). Le record local s'enregistre automatiquement et **séparément pour chaque difficulté** (`tetripz-best-0` à `tetripz-best-4`), qu'il soit publié ou non. Le pseudo reste facultatif, seulement après un nouveau record du niveau choisi.
+
+L'ancien record commun (`tetripz-best`) est conservé dans le navigateur sans être attribué à un niveau précis, car sa difficulté d'origine est inconnue. Les records par niveau commencent à zéro si aucun score correspondant n'était déjà enregistré.
 
 ## Version du jeu
 
-Version actuelle : **v1.9.1** (correctif de confirmation de publication d'un score).
+Version actuelle : **v1.10.0** (record local distinct pour chaque niveau de difficulté, avec affichage et publication adaptés).
 
 ## Licence
 
