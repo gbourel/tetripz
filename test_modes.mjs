@@ -13,7 +13,7 @@ assert.match(html, /<option value="0" selected data-i18n="0 · Normal \(sans eff
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
 assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
-assert.match(html, /v1\.17\.0/);
+assert.match(html, /v1\.18\.0/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
 assert.equal((html.match(/class="double-vision"/g)||[]).length,3);
 assert.match(js, /uiDifficulty>0&&!reduceMotion\.matches/);
@@ -326,8 +326,8 @@ console.log('OK : musique dès la page, première interaction, volume, arrêt et
 // Le thème psychédélique conserve les points d'entrée et l'accessibilité du jeu.
 assert.match(html, /ARCADE \/ BLOCK PARTY/);
 assert.match(html, /name="theme-color" content="#130726"/);
-assert.match(html, /script\.js\?v=1\.17\.0/);
-assert.match(html, /style\.css\?v=1\.17\.0/);
+assert.match(html, /script\.js\?v=1\.18\.0/);
+assert.match(html, /style\.css\?v=1\.18\.0/);
 assert.match(css, /--accent:#9cff60/);
 assert.match(css, /header::before,header::after/); // tétriminos décoratifs
 assert.match(css, /repeating-linear-gradient/); // grille Tetris
@@ -385,8 +385,8 @@ assert.match(html,/id="confirm-publish" type="submit"/);
 console.log('OK : français, anglais, langue de secours et traduction complète des libellés.');
 
 // Le logo généré apparaît dans l'en-tête et sert aussi d'icône du site.
-assert.match(html, /<img class="brand-icon" src="assets\/tryptis-logo\.png\?v=1\.17\.0"[^>]*alt="" aria-hidden="true">/);
-assert.match(html, /<link rel="icon" type="image\/png" sizes="64x64" href="assets\/tryptis-icon\.png\?v=1\.17\.0"/);
+assert.match(html, /<img class="brand-icon" src="assets\/tryptis-logo\.png\?v=1\.18\.0"[^>]*alt="" aria-hidden="true">/);
+assert.match(html, /<link rel="icon" type="image\/png" sizes="64x64" href="assets\/tryptis-icon\.png\?v=1\.18\.0"/);
 assert.match(css, /\.brand-row\{display:flex;justify-content:center/);
 assert.match(css, /\.brand-icon\{[\s\S]*?width:80px;height:80px/);
 assert.match(css, /@media\(max-width:410px\)\{\s*\.brand-row\{gap:8px\}/);
@@ -406,7 +406,7 @@ console.log('OK : contrôles mobiles remontés, aide clavier repliée, audio com
 
 assert.match(html, /<title>Tryptis — Psychedelic Blocks<\/title>/);
 assert.match(html, /aria-label="Jeu Tryptis" data-i18n-aria-label="Jeu Tryptis"/);
-assert.match(html, /<\/span> · TRYPTIS <span id="app-version"/);
+assert.match(html, /<footer>TRYPTIS <span id="app-version"/);
 assert.equal(en.translate('Jeu Tryptis'),'Tryptis game');
 assert.doesNotMatch(html, /Tetripz|TETRIPZ/);
 console.log('OK : nouveau nom Tryptis, titres et traductions.');
@@ -449,3 +449,14 @@ assert.match(js,/gridCtx\.fillStyle='#0b1226'/);
 assert.match(js,/ctx\.drawImage\(gridCanvas,0,0\)/);
 assert.doesNotMatch(css,/animation:blockAura/);
 console.log('OK : rendus plafonnés, niveaux statiques optimisés, gravité et repos préservés.');
+
+assert.doesNotMatch(html,/ARCADE \/ BLOCK PARTY|A JOUER AVEC MODERATION/);
+assert.match(html,/<header><img class="brand-icon"[^>]*><div class="brand-row"><h1>/);
+assert.match(html,/<\/aside>\s*<nav class="touch-controls"[\s\S]*?<\/nav>\s*<button id="ranking"/);
+assert.equal((html.match(/id="ranking"/g)||[]).length,1);
+assert.match(css,/#ranking\{grid-column:2;grid-row:2/);
+assert.match(css,/\.touch-controls\{grid-row:1;margin:0 auto 6px\}/);
+assert.match(css,/\.board-wrap,\.side\{grid-row:2\}/);
+assert.match(css,/#ranking\{grid-column:1;grid-row:3\}/);
+assert.match(css,/\.stats\{grid-row:4\}/);
+console.log('OK : classement sous le plateau, contrôles tactiles au-dessus, logo et pied de page épurés.');
