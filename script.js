@@ -143,7 +143,7 @@ let uiDifficulty=Number(uiDifficultySelect.value);
 uiDifficultySelect.addEventListener('change',()=>{uiDifficulty=Number(uiDifficultySelect.value);showBest()});
 
 let board,active,nextPiece,bag=[],score=0,lines=0,level=1,state='ready',lastTime=0,dropCounter=0;
-let bestBeforeGame=0,publishedThisGame=false;
+let bestBeforeGame=0,publishedThisGame=false,renderDirty=true;
 // Les anciens scores globaux restent dans "tryptis-best" : leur difficulté est inconnue.
 const bestByDifficulty=Array.from({length:5},(_,i)=>{
   try{return Math.max(0,Number(localStorage.getItem(`tryptis-best-${i}`))||0)}
@@ -157,10 +157,10 @@ showBest();
 function emptyBoard(){return Array.from({length:ROWS},()=>Array(COLS).fill(null))}
 function randomType(){if(!bag.length){bag=Object.keys(SHAPES);for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]]}}return bag.pop()}
 function createPiece(){const type=randomType();return{type,matrix:SHAPES[type].map(row=>row.slice()),x:0,y:0}}
-function spawn(){active=nextPiece||createPiece();nextPiece=createPiece();active.x=Math.floor((COLS-active.matrix[0].length)/2);active.y=0;drawNext();if(collides(active.matrix,active.x,active.y))gameOver()}
+function spawn(){renderDirty=true;active=nextPiece||createPiece();nextPiece=createPiece();active.x=Math.floor((COLS-active.matrix[0].length)/2);active.y=0;drawNext();if(collides(active.matrix,active.x,active.y))gameOver()}
 function collides(matrix,x,y){for(let r=0;r<matrix.length;r++)for(let c=0;c<matrix[r].length;c++)if(matrix[r][c]){const xx=x+c,yy=y+r;if(xx<0||xx>=COLS||yy>=ROWS||(yy>=0&&board[yy][xx]))return true}return false}
-function move(dx,dy){if(state!=='playing')return false;if(!collides(active.matrix,active.x+dx,active.y+dy)){active.x+=dx;active.y+=dy;return true}if(dy>0)lockPiece();return false}
-function rotate(){if(state!=='playing')return;const m=active.matrix;const rotated=m[0].map((_,i)=>m.map(row=>row[i]).reverse());for(const dx of [0,-1,1,-2,2])if(!collides(rotated,active.x+dx,active.y)){active.matrix=rotated;active.x+=dx;break}}
+function move(dx,dy){if(state!=='playing')return false;if(!collides(active.matrix,active.x+dx,active.y+dy)){active.x+=dx;active.y+=dy;renderDirty=true;return true}if(dy>0)lockPiece();return false}
+function rotate(){if(state!=='playing')return;const m=active.matrix;const rotated=m[0].map((_,i)=>m.map(row=>row[i]).reverse());for(const dx of [0,-1,1,-2,2])if(!collides(rotated,active.x+dx,active.y)){active.matrix=rotated;active.x+=dx;renderDirty=true;break}}
 function hardDrop(){if(state!=='playing')return;let n=0;while(!collides(active.matrix,active.x,active.y+1)){active.y++;n++}score+=n*2;lockPiece()}
 function lockPiece(){for(let r=0;r<active.matrix.length;r++)for(let c=0;c<active.matrix[r].length;c++)if(active.matrix[r][c]){const y=active.y+r;if(y<0){gameOver();return}board[y][active.x+c]=active.type}let cleared=0;for(let y=ROWS-1;y>=0;y--){if(board[y].every(Boolean)){board.splice(y,1);board.unshift(Array(COLS).fill(null));cleared++;y++}}if(cleared){score+=[0,100,300,500,800][cleared]*level;lines+=cleared;level=Math.floor(lines/10)+1}updateStats();spawn();dropCounter=0}
 function updateStats(){scoreEl.textContent=formatScore(score);linesEl.textContent=lines;levelEl.textContent=level;if(score>bestByDifficulty[uiDifficulty]){bestByDifficulty[uiDifficulty]=score;showBest();try{localStorage.setItem(`tryptis-best-${uiDifficulty}`,String(score))}catch(_e){}}}
@@ -290,12 +290,17 @@ function cell(context,x,y,color,size=SIZE,alpha=1){
   context.globalAlpha=1;
   if(power)context.restore();
 }
+// La grille ne change jamais : elle est dessinée une seule fois.
+const gridCanvas=document.createElement('canvas');
+gridCanvas.width=COLS*SIZE;gridCanvas.height=ROWS*SIZE;
+const gridCtx=gridCanvas.getContext('2d');
+gridCtx.fillStyle='#0b1226';gridCtx.fillRect(0,0,300,600);
+gridCtx.strokeStyle='#1a2742';gridCtx.lineWidth=.6;
+for(let x=0;x<=COLS;x++){gridCtx.beginPath();gridCtx.moveTo(x*SIZE,0);gridCtx.lineTo(x*SIZE,600);gridCtx.stroke()}
+for(let y=0;y<=ROWS;y++){gridCtx.beginPath();gridCtx.moveTo(0,y*SIZE);gridCtx.lineTo(300,y*SIZE);gridCtx.stroke()}
 function draw(){
   ctx.filter='none';
-  ctx.fillStyle='#0b1226';ctx.fillRect(0,0,300,600);
-  ctx.strokeStyle='#1a2742';ctx.lineWidth=.6;
-  for(let x=0;x<=COLS;x++){ctx.beginPath();ctx.moveTo(x*SIZE,0);ctx.lineTo(x*SIZE,600);ctx.stroke()}
-  for(let y=0;y<=ROWS;y++){ctx.beginPath();ctx.moveTo(0,y*SIZE);ctx.lineTo(300,y*SIZE);ctx.stroke()}
+  ctx.drawImage(gridCanvas,0,0);
   if(!board)return;
   ctx.filter=brickFilter;
   for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)if(board[y][x])cell(ctx,x,y,COLORS[board[y][x]]);
@@ -352,7 +357,7 @@ function resetDoubleVision(){
     layer.canvas.hidden=true;
   });
 }
-function animateDoubleVision(dt){
+function animateDoubleVision(dt,boardRedrawn=true){
   const active=state==='playing'&&uiDifficulty>0&&!reduceMotion.matches;
   if(active&&uiDifficulty>=3){
     ghostTimer-=Math.max(0,dt)/1000;
@@ -365,6 +370,7 @@ function animateDoubleVision(dt){
   }
   ghostLayers.forEach((layer,index)=>{
     const visible=active&&index<ghostCount;
+    const wasHidden=layer.canvas.hidden;
     layer.canvas.hidden=!visible;
     if(!visible)return;
     for(const motion of Object.values(layer.motion)){
@@ -383,8 +389,7 @@ function animateDoubleVision(dt){
     layer.canvas.style.transform=`translate(${x.value.toFixed(1)}px,${y.value.toFixed(1)}px) rotate(${rotate.value.toFixed(1)}deg) scale(${scale.value.toFixed(3)})`;
     layer.canvas.style.opacity=opacity.value.toFixed(3);
     layer.canvas.style.filter=`hue-rotate(${hue.value.toFixed(0)}deg) saturate(${sat.value.toFixed(2)})`;
-    layer.ctx.clearRect(0,0,300,600);
-    layer.ctx.drawImage(boardCanvas,0,0);
+    if(boardRedrawn||wasHidden)layer.ctx.drawImage(boardCanvas,0,0);
   });
 }
 // Les briques changent de teinte et de saturation, sans modifier le fond ni la grille.
@@ -441,7 +446,32 @@ function animateSwell(dt){
   const y=(Math.sin(t*.61+2)*3+Math.sin(t*.35)*1.5)*intensity;
   boardWrap.style.transform=`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) rotate(${angle.toFixed(2)}deg) scale(${zoomScale.toFixed(4)})`;
 }
-function frame(time=0){const dt=Math.min(time-lastTime,100);lastTime=time;if(state==='playing'){dropCounter+=Math.max(0,dt);const interval=Math.max(85,850*Math.pow(.82,level-1));if(dropCounter>=interval){move(0,1);dropCounter=0}}animateSwell(dt);animateBrickColors(dt);if(state==='playing'&&uiDifficulty>=2&&!reduceMotion.matches)wobbleTime+=Math.max(0,dt)/1000;draw();if(state==='playing'&&uiDifficulty>=2)drawNext();animateDoubleVision(dt);requestAnimationFrame(frame)}
+// 30 FPS pendant le jeu, 4 FPS hors partie ; pas de dessin si rien n'a changé.
+const FRAME_MS=1000/30;
+let renderedState=null;
+function frame(time=0){
+  requestAnimationFrame(frame);
+  if(renderedState===state&&time-lastTime<(state==='playing'?FRAME_MS:250))return;
+  const dt=Math.min(Math.max(0,time-lastTime),100);
+  lastTime=time;
+  if(state==='playing'){
+    dropCounter+=dt;
+    const interval=Math.max(85,850*Math.pow(.82,level-1));
+    if(dropCounter>=interval){move(0,1);dropCounter=0}
+    animateSwell(dt);
+    animateBrickColors(dt);
+    if(uiDifficulty>=2&&!reduceMotion.matches)wobbleTime+=dt/1000;
+  }else if(renderedState!==state)animateSwell(0);
+  const redraw=renderDirty||renderedState!==state||
+    (state==='playing'&&uiDifficulty>=2&&!reduceMotion.matches);
+  if(redraw){
+    draw();
+    if(state==='playing'&&uiDifficulty>=2)drawNext();
+    renderDirty=false;
+  }
+  animateDoubleVision(dt,redraw);
+  renderedState=state;
+}
 function action(name){if(name==='left')move(-1,0);else if(name==='right')move(1,0);else if(name==='down'){if(move(0,1)){score++;updateStats()}dropCounter=0}else if(name==='rotate')rotate();else if(name==='drop')hardDrop()}
 document.addEventListener('keydown',e=>{const map={ArrowLeft:'left',ArrowRight:'right',ArrowDown:'down',ArrowUp:'rotate',Space:'drop'};const key=e.code==='Space'?'Space':e.key;if(map[key]){e.preventDefault();if(!e.repeat||key!=='Space')action(map[key])}else if(key.toLowerCase()==='p'){e.preventDefault();if(!e.repeat)togglePause()}else if(key.toLowerCase()==='r'){e.preventDefault();if(!e.repeat)startGame()}});
 // Maintenir gauche/droite/bas pour répéter, appui simple pour rotation/chute.
