@@ -9,11 +9,11 @@ const difficultySelect = html.split('id="ui-difficulty"')[1].split('</select>')[
 const options = [...difficultySelect.matchAll(/<option value="([0-4])"/g)].map(match => match[1]);
 
 assert.deepEqual(options, ['0', '1', '2', '3', '4']);
-assert.match(html, /<option value="0" selected>/);
+assert.match(html, /<option value="0" selected data-i18n="0 · Normal \(sans effets\)">/);
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
 assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
-assert.match(html, /v1\.12\.0/);
+assert.match(html, /v1\.13\.0/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
 assert.equal((html.match(/class="double-vision"/g)||[]).length,3);
 assert.match(js, /uiDifficulty>0&&!reduceMotion\.matches/);
@@ -23,7 +23,7 @@ assert.match(css, /\.double-vision\{[^}]*pointer-events:none/);
 assert.match(js, /difficultyMultiplier=\[1,2\.1,24,32\]/);
 assert.match(js, /if\(uiDifficulty===4\)spinAngle\+=/);
 assert.match(js, /spinDirection=Math\.random\(\)<\.5\?-1:1/);
-assert.match(html, /id="menu" class="secondary" disabled>MENU<\/button>/);
+assert.match(html, /id="menu" class="secondary" disabled data-i18n="MENU">MENU<\/button>/);
 assert.match(js, /menuBtn\.addEventListener\('click',goToMenu\)/);
 assert.match(js, /function goToMenu\(\)/);
 assert.match(js, /if\(state!=='playing'&&state!=='paused'\)return/);
@@ -156,6 +156,7 @@ const checkRecord=new Function('points','before','backendReady',`
   let shown='';
   function showOverlay(title,message,button){shown=title+' '+message+' '+button;overlayMessage.textContent=message}
   const leaderboardReady=()=>backendReady;
+  const tr=text=>text,formatScore=value=>value.toLocaleString('fr-FR');
   function syncMusic(){}
   ${js.slice(overStart,overEnd)}
   gameOver();
@@ -211,6 +212,7 @@ const simulateRecords=new Function('localStorage',`
   const bestEl={textContent:''},bestLabel={textContent:''};
   const scoreEl={textContent:''},linesEl={textContent:''},levelEl={textContent:''};
   let uiDifficulty=0;
+  const tr=text=>text,formatScore=value=>value.toLocaleString('fr-FR');
   ${js.slice(recordStart,recordEnd)}
   ${js.slice(statsStart,statsEnd)}
   return {
@@ -253,6 +255,7 @@ const musicEnd=js.indexOf('const uiDifficultyWrap=',musicStart);
 assert.ok(musicStart>=0&&musicEnd>musicStart);
 const exerciseMusic=new Function('saved',`
   let state='ready';
+  const tr=text=>text;
   const data=new Map(saved);
   const localStorage={
     getItem(key){return data.get(key)??null},
@@ -308,8 +311,8 @@ console.log('OK : musique activable, stoppable, volume conservé et pause synchr
 // Le thème psychédélique conserve les points d'entrée et l'accessibilité du jeu.
 assert.match(html, /ARCADE \/ BLOCK PARTY/);
 assert.match(html, /name="theme-color" content="#130726"/);
-assert.match(html, /script\.js\?v=1\.12\.0/);
-assert.match(html, /style\.css\?v=1\.12\.0/);
+assert.match(html, /script\.js\?v=1\.13\.0/);
+assert.match(html, /style\.css\?v=1\.13\.0/);
 assert.match(css, /--accent:#9cff60/);
 assert.match(css, /header::before,header::after/); // tétriminos décoratifs
 assert.match(css, /repeating-linear-gradient/); // grille Tetris
@@ -320,3 +323,46 @@ assert.match(css, /@media\(max-width:760px\)/);
 assert.match(css, /@media\(prefers-reduced-motion:reduce\)\{\s*h1,\.board-wrap\{animation:none!important\}/);
 assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length);
 console.log('OK : thème psychédélique, couleurs contrastées, responsive et mouvement réduit.');
+
+// La langue est celle préférée du navigateur et couvre tous les textes statiques.
+const localeStart=js.indexOf('// French for French-language browsers');
+const localeEnd=js.indexOf("const boardCanvas=document.querySelector",localeStart);
+assert.ok(localeStart>=0&&localeEnd>localeStart);
+const checkLanguage=new Function('languages',`
+  const elements=[{dataset:{i18n:'CHOISIS TON NIVEAU'},textContent:''}];
+  const aria=[{dataset:{i18nAriaLabel:'Déplacer à gauche'},
+    setAttribute(name,value){this[name]=value}}];
+  const document={
+    documentElement:{lang:'fr'},
+    querySelectorAll(selector){return selector==='[data-i18n]'?elements:aria}
+  };
+  const navigator={languages};
+  ${js.slice(localeStart,localeEnd)}
+  return {
+    language:document.documentElement.lang,
+    button:elements[0].textContent,aria:aria[0]['aria-label'],
+    translate:tr,format:formatScore,
+    keys:Object.keys(english)
+  };
+`);
+const fr=checkLanguage(['fr-CA','en-US']);
+assert.equal(fr.language,'fr');
+assert.equal(fr.button,'CHOISIS TON NIVEAU');
+assert.equal(fr.aria,'Déplacer à gauche');
+const en=checkLanguage(['en-GB','fr-FR']);
+assert.equal(en.language,'en');
+assert.equal(en.button,'CHOOSE YOUR LEVEL');
+assert.equal(en.aria,'Move left');
+assert.equal(en.translate('PUBLIER MON RECORD'),'SUBMIT MY RECORD');
+assert.equal(en.translate('Publication impossible. Réessaie plus tard.'),"Couldn't submit the score. Try again later.");
+assert.equal(en.translate('REPRENDRE'),'RESUME');
+assert.equal(en.translate('Nouveau record :'),'New personal best:');
+assert.equal(checkLanguage(['de-DE','fr-FR']).language,'fr');
+assert.equal(checkLanguage(['es-ES']).language,'en');
+assert.notEqual(fr.format(12345),en.format(12345));
+for(const [,key] of html.matchAll(/data-i18n(?:-aria-label)?="([^"]+)"/g)){
+  assert.ok(en.keys.includes(key)); // toute la page dispose d'une traduction anglaise
+}
+assert.match(html,/id="publish-name" name="pseudo" minlength="2"/);
+assert.match(html,/id="confirm-publish" type="submit"/);
+console.log('OK : français, anglais, langue de secours et traduction complète des libellés.');
