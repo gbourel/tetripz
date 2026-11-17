@@ -12,7 +12,7 @@ assert.match(html, /<option value="0" selected>/);
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
 assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
-assert.match(html, /v1\.5\.1/);
+assert.match(html, /v1\.6\.0/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
 assert.match(js, /doubleCanvas\.hidden=!visible/);
 assert.match(js, /uiDifficulty>0&&!reduceMotion\.matches/);
@@ -65,5 +65,29 @@ for(const level of [1,2,3,4]){
   assert.equal(hue.min,120);
   assert.equal(hue.max,240);
 }
-console.log('OK : couleur fantôme toujours décalée, niveaux 0–2 inchangés et 3–4 animés.');
+// Chaque carré se déforme différemment, avec une intensité croissante.
+const wobbleStart=js.indexOf('let wobbleTime=0;');
+const wobbleEnd=js.indexOf('function draw(){',wobbleStart);
+assert.ok(wobbleStart>=0 && wobbleEnd>wobbleStart);
+const wobbleCheck=new Function('uiDifficulty','time',`
+  const state='playing', reduceMotion={matches:false}, SIZE=30, nextCtx={};
+  ${js.slice(wobbleStart,wobbleEnd)}
+  wobbleTime=time;
+  const scales=[];
+  const context={
+    save(){},restore(){},translate(){},rotate(){},fillRect(){},
+    scale(x,y){scales.push({x,y})}
+  };
+  cell(context,0,0,'#00e5ff');
+  cell(context,1,0,'#00e5ff');
+  return scales;
+`);
+for(const difficulty of [0,1])assert.equal(wobbleCheck(difficulty,1.2).length,0);
+const wobble2=wobbleCheck(2,1.2),wobble3=wobbleCheck(3,1.2),wobble4=wobbleCheck(4,1.2);
+assert.equal(wobble2.length,2);
+assert.notEqual(wobble2[0].x,wobble2[1].x);
+assert.ok(Math.abs(wobble2[0].x-1)<Math.abs(wobble3[0].x-1));
+assert.ok(Math.abs(wobble3[0].x-1)<Math.abs(wobble4[0].x-1));
+assert.match(js,/uiDifficulty>=2\)drawNext\(\)/);
+console.log('OK : carrés élastiques indépendants et amplitude croissante aux niveaux 2–4.');
 
