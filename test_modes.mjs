@@ -73,21 +73,39 @@ const wobbleCheck=new Function('uiDifficulty','time',`
   const state='playing', reduceMotion={matches:false}, SIZE=30, nextCtx={};
   ${js.slice(wobbleStart,wobbleEnd)}
   wobbleTime=time;
-  const scales=[];
+  const scales=[],curves=[],rounded=[];
+  let clips=0;
   const context={
     save(){},restore(){},translate(){},rotate(){},fillRect(){},
-    scale(x,y){scales.push({x,y})}
+    scale(x,y){scales.push({x,y})},
+    beginPath(){},moveTo(x){rounded.push(x+14)},
+    bezierCurveTo(...points){curves.push(points)},
+    quadraticCurveTo(){},closePath(){},fill(){},clip(){clips++}
   };
   cell(context,0,0,'#00e5ff');
   cell(context,1,0,'#00e5ff');
-  return scales;
+  return {scales,curves,rounded,clips};
 `);
-for(const difficulty of [0,1])assert.equal(wobbleCheck(difficulty,1.2).length,0);
+for(const difficulty of [0,1]){
+  const normal=wobbleCheck(difficulty,1.2);
+  assert.equal(normal.scales.length,0);
+  assert.equal(normal.curves.length,0);
+}
 const wobble2=wobbleCheck(2,1.2),wobble3=wobbleCheck(3,1.2),wobble4=wobbleCheck(4,1.2);
-assert.equal(wobble2.length,2);
-assert.notEqual(wobble2[0].x,wobble2[1].x);
-assert.ok(Math.abs(wobble2[0].x-1)<Math.abs(wobble3[0].x-1));
-assert.ok(Math.abs(wobble3[0].x-1)<Math.abs(wobble4[0].x-1));
+assert.equal(wobble2.scales.length,2);
+assert.notEqual(wobble2.scales[0].x,wobble2.scales[1].x);
+assert.ok(Math.abs(wobble2.scales[0].x-1)<Math.abs(wobble3.scales[0].x-1));
+assert.ok(Math.abs(wobble3.scales[0].x-1)<Math.abs(wobble4.scales[0].x-1));
+for(const wobble of [wobble2,wobble3,wobble4]){
+  assert.equal(wobble.curves.length,8); // 4 bords courbés par carré
+  assert.equal(wobble.rounded.length,2);
+  assert.equal(wobble.clips,2);
+  assert.notEqual(wobble.curves[0][1],wobble.curves[4][1]);
+}
+assert.ok(wobble2.rounded[0]<wobble3.rounded[0]);
+assert.ok(wobble3.rounded[0]<wobble4.rounded[0]);
+assert.ok(Math.abs(wobble2.curves[0][1]+14)<Math.abs(wobble3.curves[0][1]+14));
+assert.ok(Math.abs(wobble3.curves[0][1]+14)<Math.abs(wobble4.curves[0][1]+14));
 assert.match(js,/uiDifficulty>=2\)drawNext\(\)/);
-console.log('OK : carrés élastiques indépendants et amplitude croissante aux niveaux 2–4.');
+console.log('OK : bords courbés, coins arrondis et carrés indépendants aux niveaux 2–4.');
 
