@@ -12,7 +12,7 @@ assert.match(html, /<option value="0" selected>/);
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
 assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
-assert.match(html, /v1\.5\.0/);
+assert.match(html, /v1\.5\.1/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
 assert.match(js, /doubleCanvas\.hidden=!visible/);
 assert.match(js, /uiDifficulty>0&&!reduceMotion\.matches/);
@@ -48,5 +48,22 @@ assert.match(color3.filter,/hue-rotate/);
 assert.ok(color4.hue>color3.hue && color4.sat>color3.sat);
 assert.match(js,/ctx.filter=brickFilter/);
 assert.match(js,/nextCtx.filter=brickFilter/);
-console.log('OK : couleurs stables aux niveaux 0–2 et variantes aux niveaux 3–4.');
+// La vision double conserve une teinte décalée même au début de l'animation.
+const ghostStart = js.indexOf('function resetDoubleVision()');
+const ghostEnd = js.indexOf('function animateDoubleVision(dt)', ghostStart);
+assert.ok(ghostStart >= 0 && ghostEnd > ghostStart);
+const ghostPalette = new Function('uiDifficulty', 'Math', `
+  let doubleMotion = {};
+  ${js.slice(ghostStart,ghostEnd)}
+  resetDoubleVision();
+  return doubleMotion.hue;
+`);
+for(const level of [1,2,3,4]){
+  const hue = ghostPalette(level,random);
+  assert.equal(hue.from,180);
+  assert.ok(hue.to>=120 && hue.to<=240);
+  assert.equal(hue.min,120);
+  assert.equal(hue.max,240);
+}
+console.log('OK : couleur fantôme toujours décalée, niveaux 0–2 inchangés et 3–4 animés.');
 
