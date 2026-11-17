@@ -32,3 +32,6 @@
 .double-vision{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen;transform-origin:center;will-change:transform,opacity,filter}
 .double-vision[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){.double-vision{display:none!important;will-change:auto}}
+
+/* Garder Pause et Menu utilisables dans la colonne étroite du mobile. */
+@media(max-width:760px){.side>button{width:100%;min-width:0;padding:12px 4px;font-size:11px;letter-spacing:0}}
