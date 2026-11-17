@@ -13,7 +13,7 @@ assert.match(html, /<option value="0" selected data-i18n="0 · Normal \(sans eff
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
 assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
-assert.match(html, /v1\.14\.1/);
+assert.match(html, /v1\.14\.2/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
 assert.equal((html.match(/class="double-vision"/g)||[]).length,3);
 assert.match(js, /uiDifficulty>0&&!reduceMotion\.matches/);
@@ -262,9 +262,9 @@ const exerciseMusic=new Function('saved',`
     setItem(key,value){data.set(key,value)}
   };
   const musicElement={
-    volume:0,plays:0,pauses:0,
-    play(){this.plays++;return Promise.resolve()},
-    pause(){this.pauses++}
+    volume:0,plays:0,pauses:0,paused:true,
+    play(){this.plays++;this.paused=false;return Promise.resolve()},
+    pause(){this.pauses++;this.paused=true}
   };
   const toggleElement={handlers:{},textContent:'',attrs:{},
     addEventListener(name,callback){this.handlers[name]=callback},
@@ -278,11 +278,14 @@ const exerciseMusic=new Function('saved',`
     '#music':musicElement,'#music-toggle':toggleElement,
     '#music-volume':volumeElement,'#music-volume-value':volumeOutput
   };
-  const document={querySelector(selector){return lookup[selector]}};
+  const events={};
+  const document={querySelector(selector){return lookup[selector]},addEventListener(type,callback){events[type]=callback}};
   ${js.slice(musicStart,musicEnd)}
   return {
     musicElement,musicToggle:toggleElement,musicVolume:volumeElement,musicVolumeValue:volumeOutput,data,
     state(value){state=value;syncMusic()},
+    start(){syncMusic()},
+    gesture(type){events[type]()},
     toggle(){toggleElement.handlers.click()},
     volume(value){volumeElement.value=String(value);volumeElement.handlers.input()}
   };
@@ -300,19 +303,27 @@ soundtrack.volume(25);
 assert.equal(soundtrack.musicElement.volume,.25);
 assert.equal(soundtrack.data.get('tetripz-volume'),'25');
 soundtrack.state('paused');
-assert.ok(soundtrack.musicElement.pauses>=1);
-soundtrack.state('playing');
-assert.equal(soundtrack.musicElement.plays,2);
+assert.equal(soundtrack.musicElement.pauses,0); // La pause du jeu ne coupe pas la musique.
+soundtrack.state('ready');
+assert.equal(soundtrack.musicElement.pauses,0); // Le menu non plus.
 soundtrack.toggle();
 assert.equal(soundtrack.musicToggle.textContent,'ACTIVER');
 assert.equal(soundtrack.data.get('tetripz-music'),'off');
-console.log('OK : musique activable, stoppable, volume conservé et pause synchronisée.');
+const autoplay=exerciseMusic([]);
+autoplay.start(); // Chargement de page avant JOUER.
+assert.equal(autoplay.musicElement.plays,1);
+autoplay.musicElement.paused=true; // Le navigateur a bloqué l'autoplay.
+autoplay.gesture('pointerdown');
+assert.equal(autoplay.musicElement.plays,2); // Première interaction, même hors du jeu.
+autoplay.state('over');
+assert.equal(autoplay.musicElement.pauses,0);
+console.log('OK : musique dès la page, première interaction, volume, arrêt et indépendance du jeu.');
 
 // Le thème psychédélique conserve les points d'entrée et l'accessibilité du jeu.
 assert.match(html, /ARCADE \/ BLOCK PARTY/);
 assert.match(html, /name="theme-color" content="#130726"/);
-assert.match(html, /script\.js\?v=1\.14\.1/);
-assert.match(html, /style\.css\?v=1\.14\.1/);
+assert.match(html, /script\.js\?v=1\.14\.2/);
+assert.match(html, /style\.css\?v=1\.14\.2/);
 assert.match(css, /--accent:#9cff60/);
 assert.match(css, /header::before,header::after/); // tétriminos décoratifs
 assert.match(css, /repeating-linear-gradient/); // grille Tetris
@@ -370,8 +381,8 @@ assert.match(html,/id="confirm-publish" type="submit"/);
 console.log('OK : français, anglais, langue de secours et traduction complète des libellés.');
 
 // Le logo généré apparaît dans l'en-tête et sert aussi d'icône du site.
-assert.match(html, /<img class="brand-icon" src="assets\/tetripz-logo\.png\?v=1\.14\.1"[^>]*alt="" aria-hidden="true">/);
-assert.match(html, /<link rel="icon" type="image\/png" sizes="64x64" href="assets\/tetripz-icon\.png\?v=1\.14\.1"/);
+assert.match(html, /<img class="brand-icon" src="assets\/tetripz-logo\.png\?v=1\.14\.2"[^>]*alt="" aria-hidden="true">/);
+assert.match(html, /<link rel="icon" type="image\/png" sizes="64x64" href="assets\/tetripz-icon\.png\?v=1\.14\.2"/);
 assert.match(css, /\.brand-row\{display:flex;justify-content:center/);
 assert.match(css, /\.brand-icon\{[\s\S]*?width:80px;height:80px/);
 assert.match(css, /@media\(max-width:410px\)\{\s*\.brand-row\{gap:8px\}/);
