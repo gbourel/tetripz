@@ -12,11 +12,11 @@ assert.match(html, /<option value="0" selected>/);
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
 assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
-assert.match(html, /v1\.7\.0/);
+assert.match(html, /v1\.8\.0/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
-assert.match(js, /doubleCanvas\.hidden=!visible/);
+assert.equal((html.match(/class="double-vision"/g)||[]).length,3);
 assert.match(js, /uiDifficulty>0&&!reduceMotion\.matches/);
-assert.match(js, /doubleCtx\.drawImage\(boardCanvas,0,0\)/);
+assert.match(js, /layer\.ctx\.drawImage\(boardCanvas,0,0\)/);
 assert.match(js, /for\(const \[key,\[min,max\]\] of Object\.entries\(ranges\)\)/);
 assert.match(css, /\.double-vision\{[^}]*pointer-events:none/);
 assert.match(js, /difficultyMultiplier=\[1,2\.1,24,32\]/);
@@ -27,7 +27,7 @@ assert.match(js, /menuBtn\.addEventListener\('click',goToMenu\)/);
 assert.match(js, /function goToMenu\(\)/);
 assert.match(js, /if\(state!=='playing'&&state!=='paused'\)return/);
 assert.match(js, /state='ready'/);
-assert.match(js, /boardWrap\.style\.transform='none';doubleCanvas\.hidden=true/);
+assert.match(js, /boardWrap\.style\.transform='none';ghostLayers\.forEach/);
 assert.match(js, /showOverlay\('CHOISIS TON NIVEAU'/);
 
 // Exécute la logique de coloration avec un hasard déterministe.
@@ -48,23 +48,50 @@ assert.match(color3.filter,/hue-rotate/);
 assert.ok(color4.hue>color3.hue && color4.sat>color3.sat);
 assert.match(js,/ctx.filter=brickFilter/);
 assert.match(js,/nextCtx.filter=brickFilter/);
-// La vision double conserve une teinte décalée même au début de l'animation.
-const ghostStart = js.indexOf('function resetDoubleVision()');
-const ghostEnd = js.indexOf('function animateDoubleVision(dt)', ghostStart);
-assert.ok(ghostStart >= 0 && ghostEnd > ghostStart);
-const ghostPalette = new Function('uiDifficulty', 'Math', `
-  let doubleMotion = {};
+// La vision multiple doit passer de 1 à 2 ou 3 copies, indépendantes.
+const ghostStart=js.indexOf('// Jusqu\'à trois copies');
+const ghostEnd=js.indexOf('// Les briques changent de teinte',ghostStart);
+assert.ok(ghostStart>=0 && ghostEnd>ghostStart);
+const ghostTest=new Function('uiDifficulty','Math',`
+  const state='playing',reduceMotion={matches:false},boardCanvas={};
+  const canvases=Array.from({length:3},()=>({
+    hidden:true,style:{},
+    getContext(){return {clearRect(){},drawImage(){}}}
+  }));
+  const document={querySelectorAll(){return canvases}};
   ${js.slice(ghostStart,ghostEnd)}
   resetDoubleVision();
-  return doubleMotion.hue;
+  const initial=ghostLayers.filter(layer=>!layer.canvas.hidden).length;
+  for(let i=0;i<70;i++)animateDoubleVision(100);
+  return {
+    initial,visible:ghostLayers.filter(layer=>!layer.canvas.hidden).length,
+    layers:ghostLayers.map(layer=>({
+      hue:layer.motion.hue,zoom:layer.motion.scale,rotation:layer.motion.rotate,
+      opacity:layer.motion.opacity,style:layer.canvas.style
+    }))
+  };
 `);
-for(const level of [1,2,3,4]){
-  const hue = ghostPalette(level,random);
-  assert.equal(hue.from,180);
-  assert.ok(hue.to>=120 && hue.to<=240);
-  assert.equal(hue.min,120);
-  assert.equal(hue.max,240);
+const ghostRandom=Object.create(Math);
+ghostRandom.random=()=>.95;
+assert.equal(ghostTest(0,ghostRandom).visible,0);
+assert.equal(ghostTest(1,ghostRandom).visible,1);
+assert.equal(ghostTest(2,ghostRandom).visible,1);
+const triple=ghostTest(3,ghostRandom),quadruple=ghostTest(4,ghostRandom);
+assert.equal(triple.visible,3);
+assert.equal(quadruple.visible,3);
+for(const result of [triple,quadruple]){
+  assert.equal(result.layers.length,3);
+  assert.notEqual(result.layers[0].style.transform,result.layers[1].style.transform);
+  assert.notEqual(result.layers[1].style.transform,result.layers[2].style.transform);
+  assert.notEqual(result.layers[0].hue.from,result.layers[1].hue.from);
+  assert.notEqual(result.layers[1].hue.from,result.layers[2].hue.from);
+  assert.notEqual(result.layers[0].opacity.max,result.layers[1].opacity.max);
+  assert.notEqual(result.layers[0].zoom.max,result.layers[1].zoom.max);
 }
+ghostRandom.random=()=>.65;
+assert.equal(ghostTest(3,ghostRandom).visible,2);
+console.log('OK : vision double/triple/quadruple aléatoire, couches indépendantes.');
+
 // Chaque carré se déforme différemment, avec une intensité croissante.
 const wobbleStart=js.indexOf('let wobbleTime=0;');
 const wobbleEnd=js.indexOf('function draw(){',wobbleStart);
