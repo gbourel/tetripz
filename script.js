@@ -33,7 +33,7 @@ function goToMenu(){
   board=emptyBoard();active=null;nextPiece=null;
   score=0;lines=0;level=1;dropCounter=0;
   updateStats();drawNext();
-  boardWrap.style.transform='none';doubleCanvas.hidden=true;
+  boardWrap.style.transform='none';ghostLayers.forEach(layer=>{layer.canvas.hidden=true});
   pauseBtn.disabled=true;pauseBtn.textContent='PAUSE';menuBtn.disabled=true;
   showOverlay('CHOISIS TON NIVEAU','Choisis l’intensité des effets.','JOUER');
 }
@@ -119,40 +119,68 @@ function drawNext(){
 // Houle visuelle : uniquement le plateau, les boutons restent fixes et utilisables.
 const boardWrap=document.querySelector('.board-wrap');
 const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
-// Une copie du canvas du jeu, déformée indépendamment de la houle.
-const doubleCanvas=document.querySelector('#double-vision'),doubleCtx=doubleCanvas.getContext('2d');
-let doubleMotion={};
+// Jusqu'à trois copies du plateau, chacune avec sa propre animation.
+const ghostLayers=Array.from(document.querySelectorAll('.double-vision'),canvas=>({
+  canvas,ctx:canvas.getContext('2d'),motion:{}
+}));
+let ghostCount=1,ghostTimer=0;
 function resetDoubleVision(){
-  const k=uiDifficulty;
-  const ranges={x:[-9*k,9*k],y:[-12*k,12*k],rotate:[-3*k,3*k],scale:[1-.08*k,1+.08*k],opacity:[.06+.02*k,.12+.06*k],hue:[120,240]};
-  doubleMotion={};
-  for(const [key,[min,max]] of Object.entries(ranges)){
-    const from=key==='scale'?1:key==='opacity'?min:key==='hue'?180:0;
-    doubleMotion[key]={from,value:from,to:min+Math.random()*(max-min),min,max,elapsed:0,duration:1+Math.random()*2.8};
-  }
+  ghostCount=1;
+  ghostTimer=2+Math.random()*2;
+  ghostLayers.forEach((layer,index)=>{
+    const k=uiDifficulty,spread=1+index*.35,fade=1/(1+index*.6);
+    const hues=[[120,240],[35,115],[245,325]];
+    const ranges={
+      x:[-9*k*spread,9*k*spread],
+      y:[-12*k*spread,12*k*spread],
+      rotate:[-3*k*spread,3*k*spread],
+      scale:[1-.08*k*spread,1+.08*k*spread],
+      opacity:[(.06+.02*k)*fade,(.12+.06*k)*fade],
+      hue:hues[index],
+      sat:[1.1,2.5]
+    };
+    layer.motion={};
+    for(const [key,[min,max]] of Object.entries(ranges)){
+      const from=index>0?min+Math.random()*(max-min):key==='scale'?1:key==='opacity'?min:key==='hue'?180:key==='sat'?1.7:0;
+      layer.motion[key]={from,value:from,to:min+Math.random()*(max-min),min,max,elapsed:0,duration:1+Math.random()*2.8};
+    }
+    layer.canvas.hidden=true;
+  });
 }
 function animateDoubleVision(dt){
-  const visible=state==='playing'&&uiDifficulty>0&&!reduceMotion.matches;
-  doubleCanvas.hidden=!visible;
-  if(!visible)return;
-  for(const motion of Object.values(doubleMotion)){
-    motion.elapsed=Math.min(motion.duration,motion.elapsed+Math.max(0,dt)/1000);
-    const p=motion.elapsed/motion.duration;
-    const eased=p*p*(3-2*p);
-    motion.value=motion.from+(motion.to-motion.from)*eased;
-    if(p===1){
-      motion.from=motion.value;
-      motion.to=motion.min+Math.random()*(motion.max-motion.min);
-      motion.elapsed=0;
-      motion.duration=1+Math.random()*2.8;
+  const active=state==='playing'&&uiDifficulty>0&&!reduceMotion.matches;
+  if(active&&uiDifficulty>=3){
+    ghostTimer-=Math.max(0,dt)/1000;
+    if(ghostTimer<=0){
+      const roll=Math.random();
+      // Une, deux ou trois copies : quatre images au total au maximum.
+      ghostCount=uiDifficulty===3?(roll<.45?1:roll<.9?2:3):(roll<.15?1:roll<.5?2:3);
+      ghostTimer=(uiDifficulty===4?2.2:3.5)+Math.random()*2.5;
     }
   }
-  const {x,y,rotate,scale,opacity,hue}=doubleMotion;
-  doubleCanvas.style.transform=`translate(${x.value.toFixed(1)}px,${y.value.toFixed(1)}px) rotate(${rotate.value.toFixed(1)}deg) scale(${scale.value.toFixed(3)})`;
-  doubleCanvas.style.opacity=opacity.value.toFixed(3);
-  doubleCanvas.style.filter=`hue-rotate(${hue.value.toFixed(0)}deg) saturate(1.7)`;
-  doubleCtx.clearRect(0,0,300,600);
-  doubleCtx.drawImage(boardCanvas,0,0);
+  ghostLayers.forEach((layer,index)=>{
+    const visible=active&&index<ghostCount;
+    layer.canvas.hidden=!visible;
+    if(!visible)return;
+    for(const motion of Object.values(layer.motion)){
+      motion.elapsed=Math.min(motion.duration,motion.elapsed+Math.max(0,dt)/1000);
+      const p=motion.elapsed/motion.duration;
+      const eased=p*p*(3-2*p);
+      motion.value=motion.from+(motion.to-motion.from)*eased;
+      if(p===1){
+        motion.from=motion.value;
+        motion.to=motion.min+Math.random()*(motion.max-motion.min);
+        motion.elapsed=0;
+        motion.duration=1+Math.random()*2.8;
+      }
+    }
+    const {x,y,rotate,scale,opacity,hue,sat}=layer.motion;
+    layer.canvas.style.transform=`translate(${x.value.toFixed(1)}px,${y.value.toFixed(1)}px) rotate(${rotate.value.toFixed(1)}deg) scale(${scale.value.toFixed(3)})`;
+    layer.canvas.style.opacity=opacity.value.toFixed(3);
+    layer.canvas.style.filter=`hue-rotate(${hue.value.toFixed(0)}deg) saturate(${sat.value.toFixed(2)})`;
+    layer.ctx.clearRect(0,0,300,600);
+    layer.ctx.drawImage(boardCanvas,0,0);
+  });
 }
 // Les briques changent de teinte et de saturation, sans modifier le fond ni la grille.
 let brickHue=0,brickSat=1,brickFilter='none';
