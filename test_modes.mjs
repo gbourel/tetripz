@@ -5,7 +5,8 @@ import { readFileSync } from 'node:fs';
 const html = readFileSync('index.html', 'utf8');
 const js = readFileSync('script.js', 'utf8');
 const css = readFileSync('style.css', 'utf8');
-const options = [...html.matchAll(/<option value="([0-4])"/g)].map(match => match[1]);
+const difficultySelect = html.split('id="ui-difficulty"')[1].split('</select>')[0];
+const options = [...difficultySelect.matchAll(/<option value="([0-4])"/g)].map(match => match[1]);
 
 assert.deepEqual(options, ['0', '1', '2', '3', '4']);
 assert.match(html, /<option value="0" selected>/);
