@@ -28,13 +28,13 @@ Des boutons tactiles sont disponibles sur mobile.
 - Score, lignes, niveaux, accélération progressive
 - Meilleur score enregistré localement
 - Design néon responsive
-- Un seul sélecteur de niveau : 1 (houle douce) à 4 (houle extrême), puis 0 (jeu normal sans effet) en bas de liste
+- Un seul sélecteur de niveau dans l'ordre : 0 (jeu normal sans effet), puis 1 (houle douce) à 4 (houle extrême)
 - Houle, zoom aléatoire et effet de vision double uniquement pour les niveaux 1 à 4
 - Vision double : copie translucide et colorée du plateau, avec rotation, zoom et opacité évoluant indépendamment
 
 ## Version du jeu
 
-Version actuelle : **v1.3.0** (nouvel effet de vision double aléatoire dans les niveaux 1 à 4).
+Version actuelle : **v1.3.1** (niveaux du menu classés de 0 à 4).
 
 Le numéro de version est affiché discrètement dans le pied de page du jeu et défini dans `index.html` (élément `#app-version`).
 
