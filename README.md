@@ -32,12 +32,12 @@ Des boutons tactiles sont disponibles sur mobile. Le bouton **MENU**, à côté 
 - Un seul sélecteur de niveau dans l'ordre : 0 (jeu normal sans effet), puis 1 (houle douce) à 4 (houle extrême)
 - Houle, zoom aléatoire et effet de vision double uniquement pour les niveaux 1 à 4
 - Rotation très prononcée au niveau 3 et tours complets, avec vitesse ondulante et sens aléatoire, au niveau 4
-- Vision double : copie translucide et colorée du plateau, avec rotation, zoom et opacité évoluant indépendamment
+- Vision double : copie translucide et colorée du plateau, avec rotation, zoom et opacité évoluant indépendamment ; décalage de teinte permanent de 120° à 240° par rapport aux briques réelles
 - Couleurs des briques du jeu et de l'aperçu variant progressivement en teinte et saturation aux niveaux 3 et 4 (plus vite et plus fortement au niveau 4)
 
 ## Version du jeu
 
-Version actuelle : **v1.5.0** (variation aléatoire et progressive des teintes et saturations des briques aux niveaux 3 et 4).
+Version actuelle : **v1.5.1** (couleurs de la vision double distinctes de celles des briques réelles).
 
 Le numéro de version est affiché discrètement dans le pied de page du jeu et défini dans `index.html` (élément `#app-version`).
 
