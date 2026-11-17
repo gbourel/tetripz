@@ -13,7 +13,7 @@ const uiDifficultySelect=document.querySelector('#ui-difficulty');
 let uiDifficulty=1;
 uiDifficultySelect.addEventListener('change',()=>{uiDifficulty=Math.max(1,Math.min(4,Number(uiDifficultySelect.value)||1))});
 let selectedMode='normal';
-function selectMode(mode){if(mode!=='normal'&&mode!=='ui')return;selectedMode=mode;uiDifficultyWrap.hidden=mode!=='ui';modeMenu.querySelectorAll('[data-mode]').forEach(btn=>{const chosen=btn.dataset.mode===mode;btn.classList.toggle('selected',chosen);btn.setAttribute('aria-pressed',String(chosen))})}
+function selectMode(mode){if(mode!=='normal'&&mode!=='ui')return;selectedMode=mode;modeMenu.querySelectorAll('[data-mode]').forEach(btn=>{const chosen=btn.dataset.mode===mode;btn.classList.toggle('selected',chosen);btn.setAttribute('aria-pressed',String(chosen))})}
 modeMenu.querySelectorAll('[data-mode]').forEach(btn=>btn.addEventListener('click',()=>selectMode(btn.dataset.mode)));
 
 let board,active,nextPiece,bag=[],score=0,lines=0,level=1,best=0,state='ready',lastTime=0,dropCounter=0;
@@ -28,7 +28,7 @@ function rotate(){if(state!=='playing')return;const m=active.matrix;const rotate
 function hardDrop(){if(state!=='playing')return;let n=0;while(!collides(active.matrix,active.x,active.y+1)){active.y++;n++}score+=n*2;lockPiece()}
 function lockPiece(){for(let r=0;r<active.matrix.length;r++)for(let c=0;c<active.matrix[r].length;c++)if(active.matrix[r][c]){const y=active.y+r;if(y<0){gameOver();return}board[y][active.x+c]=active.type}let cleared=0;for(let y=ROWS-1;y>=0;y--){if(board[y].every(Boolean)){board.splice(y,1);board.unshift(Array(COLS).fill(null));cleared++;y++}}if(cleared){score+=[0,100,300,500,800][cleared]*level;lines+=cleared;level=Math.floor(lines/10)+1}updateStats();spawn();dropCounter=0}
 function updateStats(){scoreEl.textContent=score.toLocaleString('fr-FR');linesEl.textContent=lines;levelEl.textContent=level;if(score>best){best=score;bestEl.textContent=best.toLocaleString('fr-FR');try{localStorage.setItem('tetripz-best',String(best))}catch(_e){}}}
-function showOverlay(title,message,button){modeMenu.hidden=state==='paused';uiDifficultyWrap.hidden=state==='paused'||selectedMode!=='ui';overlayTitle.textContent=title;overlayMessage.textContent=message;startBtn.textContent=button;overlay.classList.remove('hidden')}
+function showOverlay(title,message,button){modeMenu.hidden=state==='paused';uiDifficultyWrap.hidden=state==='paused';overlayTitle.textContent=title;overlayMessage.textContent=message;startBtn.textContent=button;overlay.classList.remove('hidden')}
 function startGame(){modeMenu.hidden=true;uiDifficultyWrap.hidden=true;swellTime=0;zoomScale=1;zoomFrom=1;zoomTarget=1;zoomElapsed=0;chooseZoomTarget();board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now()}
 function gameOver(){state='over';pauseBtn.disabled=true;showOverlay('GAME OVER',`Score : ${score.toLocaleString('fr-FR')}`,'REJOUER')}
 function togglePause(){if(state==='playing'){state='paused';pauseBtn.textContent='REPRENDRE';showOverlay('PAUSE','Prends ton temps.','REPRENDRE')}else if(state==='paused'){state='playing';pauseBtn.textContent='PAUSE';overlay.classList.add('hidden');lastTime=performance.now()}}
