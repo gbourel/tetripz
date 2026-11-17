@@ -59,7 +59,7 @@ Les anciens noms de fichiers (`tryptis.mp3`, images), clés `localStorage` et l'
 
 ## Version du jeu
 
-Version actuelle : **v1.16.0** (nouveau nom Tryptis dans l'interface et les libellés accessibles).
+Version actuelle : **v1.17.0** (réduction du CPU : 30 FPS maximum, fond mis en cache, copies fantômes et rendus inutiles évités, halo fixe).
 
 ## Licence
 
