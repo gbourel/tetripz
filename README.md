@@ -41,6 +41,10 @@ Des boutons tactiles sont disponibles sur mobile. Le bouton **MENU**, à côté 
 
 Le Top 10 est séparé pour chacun des cinq niveaux d'effets (0 à 4). Le record local s'enregistre toujours automatiquement dans `localStorage`, qu'il soit publié ou non. La saisie du pseudo est optionnelle et il n'y a pas de création de compte.
 
+## Version du jeu
+
+Version actuelle : **v1.9.1** (correctif de confirmation de publication d'un score).
+
 ## Licence
 
 Projet de démonstration, libre à adapter pour un usage personnel.
