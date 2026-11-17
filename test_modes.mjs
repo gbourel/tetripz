@@ -371,7 +371,7 @@ console.log('OK : français, anglais, langue de secours et traduction complète 
 
 // Le logo généré apparaît dans l'en-tête et sert aussi d'icône du site.
 assert.match(html, /<img class="brand-icon" src="assets\/tetripz-logo\.png\?v=1\.14\.1"[^>]*alt="" aria-hidden="true">/);
-assert.match(html, /<link rel="icon" type="image\/png" sizes="64x64" href="assets\/tetripz-logo\.png\?v=1\.14\.1"/);
+assert.match(html, /<link rel="icon" type="image\/png" sizes="64x64" href="assets\/tetripz-icon\.png\?v=1\.14\.1"/);
 assert.match(css, /\.brand-row\{display:flex;justify-content:center/);
 assert.match(css, /\.brand-icon\{[\s\S]*?width:80px;height:80px/);
 assert.match(css, /@media\(max-width:410px\)\{\s*\.brand-row\{gap:8px\}/);
