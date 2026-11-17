@@ -11,7 +11,7 @@ assert.deepEqual(options, ['1', '2', '3', '4', '0']);
 assert.match(html, /<option value="0" selected>/);
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
-assert.match(js, /if\(uiDifficulty>0\)chooseZoomTarget\(\)/);
+assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
 assert.match(html, /v1\.3\.0/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
 assert.match(js, /doubleCanvas\.hidden=!visible/);
