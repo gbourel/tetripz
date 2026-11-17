@@ -12,7 +12,7 @@ assert.match(html, /<option value="0" selected>/);
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
 assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
-assert.match(html, /v1\.8\.0/);
+assert.match(html, /v1\.9\.0/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
 assert.equal((html.match(/class="double-vision"/g)||[]).length,3);
 assert.match(js, /uiDifficulty>0&&!reduceMotion\.matches/);
@@ -136,3 +136,39 @@ assert.ok(Math.abs(wobble3.curves[0][1]+14)<Math.abs(wobble4.curves[0][1]+14));
 assert.match(js,/uiDifficulty>=2\)drawNext\(\)/);
 console.log('OK : bords courbés, coins arrondis et carrés indépendants aux niveaux 2–4.');
 
+
+// Classement : aucun pseudo ni envoi sans nouveau record et choix explicite.
+assert.match(html,/id="publish-score"[^>]*hidden/);
+assert.match(html,/id="publish-form" hidden/);
+assert.match(html,/id="ranking-dialog"/);
+assert.match(js,/publishBtn\.addEventListener\('click'/);
+assert.match(js,/publishForm\.addEventListener\('submit',async event=>/);
+assert.match(js,/rankingList\.append\(line\)/);
+assert.match(js,/line\.textContent=/); // jamais innerHTML avec un pseudo distant
+const overStart=js.indexOf('function gameOver(){');
+const overEnd=js.indexOf('function goToMenu()',overStart);
+assert.ok(overStart>=0&&overEnd>overStart);
+const checkRecord=new Function('points','before','backendReady',`
+  let state='playing',score=points,bestBeforeGame=before;
+  const pauseBtn={},menuBtn={},rankingBtn={},publishBtn={hidden:true,disabled:true};
+  const overlayMessage={textContent:''};
+  let shown='';
+  function showOverlay(title,message,button){shown=title+' '+message+' '+button;overlayMessage.textContent=message}
+  const leaderboardReady=()=>backendReady;
+  ${js.slice(overStart,overEnd)}
+  gameOver();
+  return {shown,visible:!publishBtn.hidden,disabled:publishBtn.disabled,state};
+`);
+const normal=checkRecord(100,200,true);
+assert.equal(normal.state,'over');
+assert.equal(normal.visible,false);
+assert.equal(checkRecord(201,200,true).visible,true);
+assert.equal(checkRecord(201,200,true).disabled,false);
+assert.equal(checkRecord(201,200,false).disabled,true);
+const sql=readFileSync('supabase/leaderboard.sql','utf8');
+assert.match(sql,/enable row level security/i);
+assert.match(sql,/for select to anon/i);
+assert.match(sql,/for insert to anon/i);
+assert.match(sql,/revoke all on public\.scores from anon, authenticated/i);
+assert.doesNotMatch(sql,/grant (?:update|delete)\b/i);
+console.log('OK : publication facultative seulement sur record, lecture publique et RLS.');
