@@ -180,7 +180,7 @@ console.log('OK : publication facultative seulement sur record, lecture publique
 // Les créations renvoient souvent HTTP 201 sans corps avec Prefer:return=minimal.
 // Aucun message d'échec ni second envoi ne doit être provoqué par un JSON absent.
 const requestStart=js.indexOf('async function leaderboardRequest(');
-const requestEnd=js.indexOf('// Musique : la lecture',requestStart);
+const requestEnd=js.indexOf('// Musique indépendante',requestStart);
 assert.ok(requestStart>=0&&requestEnd>requestStart);
 const makeRequest=new Function('fetch',`
   const SUPABASE_URL='https://example.supabase.co',SUPABASE_PUBLISHABLE_KEY='sb_publishable_test';
