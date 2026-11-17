@@ -13,7 +13,7 @@ assert.match(html, /<option value="0" selected data-i18n="0 · Normal \(sans eff
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
 assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
-assert.match(html, /v1\.16\.0/);
+assert.match(html, /v1\.17\.0/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
 assert.equal((html.match(/class="double-vision"/g)||[]).length,3);
 assert.match(js, /uiDifficulty>0&&!reduceMotion\.matches/);
@@ -95,7 +95,7 @@ console.log('OK : vision double/triple/quadruple aléatoire, couches indépendan
 
 // Chaque carré se déforme différemment, avec une intensité croissante.
 const wobbleStart=js.indexOf('let wobbleTime=0;');
-const wobbleEnd=js.indexOf('function draw(){',wobbleStart);
+const wobbleEnd=js.indexOf('// La grille ne change jamais',wobbleStart);
 assert.ok(wobbleStart>=0 && wobbleEnd>wobbleStart);
 const wobbleCheck=new Function('uiDifficulty','time',`
   const state='playing', reduceMotion={matches:false}, SIZE=30, nextCtx={};
@@ -326,13 +326,13 @@ console.log('OK : musique dès la page, première interaction, volume, arrêt et
 // Le thème psychédélique conserve les points d'entrée et l'accessibilité du jeu.
 assert.match(html, /ARCADE \/ BLOCK PARTY/);
 assert.match(html, /name="theme-color" content="#130726"/);
-assert.match(html, /script\.js\?v=1\.16\.0/);
-assert.match(html, /style\.css\?v=1\.16\.0/);
+assert.match(html, /script\.js\?v=1\.17\.0/);
+assert.match(html, /style\.css\?v=1\.17\.0/);
 assert.match(css, /--accent:#9cff60/);
 assert.match(css, /header::before,header::after/); // tétriminos décoratifs
 assert.match(css, /repeating-linear-gradient/); // grille Tetris
 assert.match(css, /@keyframes chromaTitle/);
-assert.match(css, /@keyframes blockAura/);
+assert.doesNotMatch(css, /@keyframes blockAura/);
 assert.match(css, /\.touch-row:first-child button:nth-child\(2\)/);
 assert.match(css, /@media\(max-width:760px\)/);
 assert.match(css, /@media\(prefers-reduced-motion:reduce\)\{\s*h1,\.board-wrap\{animation:none!important\}/);
@@ -385,8 +385,8 @@ assert.match(html,/id="confirm-publish" type="submit"/);
 console.log('OK : français, anglais, langue de secours et traduction complète des libellés.');
 
 // Le logo généré apparaît dans l'en-tête et sert aussi d'icône du site.
-assert.match(html, /<img class="brand-icon" src="assets\/tryptis-logo\.png\?v=1\.16\.0"[^>]*alt="" aria-hidden="true">/);
-assert.match(html, /<link rel="icon" type="image\/png" sizes="64x64" href="assets\/tryptis-icon\.png\?v=1\.16\.0"/);
+assert.match(html, /<img class="brand-icon" src="assets\/tryptis-logo\.png\?v=1\.17\.0"[^>]*alt="" aria-hidden="true">/);
+assert.match(html, /<link rel="icon" type="image\/png" sizes="64x64" href="assets\/tryptis-icon\.png\?v=1\.17\.0"/);
 assert.match(css, /\.brand-row\{display:flex;justify-content:center/);
 assert.match(css, /\.brand-icon\{[\s\S]*?width:80px;height:80px/);
 assert.match(css, /@media\(max-width:410px\)\{\s*\.brand-row\{gap:8px\}/);
@@ -410,3 +410,42 @@ assert.match(html, /<\/span> · TRYPTIS <span id="app-version"/);
 assert.equal(en.translate('Jeu Tryptis'),'Tryptis game');
 assert.doesNotMatch(html, /tryptis|tryptis/);
 console.log('OK : nouveau nom Tryptis, titres et traductions.');
+
+// Le rendu est limité à 30 FPS, immobile aux niveaux 0–1 et après la partie.
+const frameStart=js.indexOf('// 30 FPS pendant le jeu');
+const frameEnd=js.indexOf('function action(',frameStart);
+assert.ok(frameStart>=0&&frameEnd>frameStart);
+const simulateFrames=new Function('difficulty',`
+  let state='playing',uiDifficulty=difficulty,level=1;
+  let lastTime=0,dropCounter=0,wobbleTime=0,renderDirty=true;
+  const reduceMotion={matches:false};
+  let draws=0,previews=0,copies=0,ticks=0;
+  function requestAnimationFrame(){}
+  function move(){ticks++;renderDirty=true;return true}
+  function animateSwell(){}
+  function animateBrickColors(){}
+  function draw(){draws++}
+  function drawNext(){previews++}
+  function animateDoubleVision(dt,redrawn){if(redrawn)copies++}
+  ${js.slice(frameStart,frameEnd)}
+  for(let t=0;t<=960;t+=16)frame(t);
+  const playing={draws,previews,copies,ticks};
+  state='paused';frame(976);
+  for(let t=992;t<=2000;t+=16)frame(t);
+  return {playing,paused:{draws,previews,copies}};
+`);
+const normalFrames=simulateFrames(0);
+assert.ok(normalFrames.playing.draws<=3); // initial et déplacement dû à la gravité
+assert.ok(normalFrames.playing.ticks>=1); // gravité maintenue au niveau 0
+assert.equal(normalFrames.playing.previews,0);
+assert.equal(normalFrames.paused.draws-normalFrames.playing.draws,1);
+const highFrames=simulateFrames(4);
+assert.ok(highFrames.playing.draws>15&&highFrames.playing.draws<=31);
+assert.equal(highFrames.playing.draws,highFrames.playing.previews);
+assert.equal(highFrames.paused.draws-highFrames.playing.draws,1);
+assert.match(js,/if\(boardRedrawn\|\|wasHidden\)layer\.ctx\.drawImage/);
+assert.doesNotMatch(js,/layer\.ctx\.clearRect\(0,0,300,600\)/);
+assert.match(js,/gridCtx\.fillStyle='#0b1226'/);
+assert.match(js,/ctx\.drawImage\(gridCanvas,0,0\)/);
+assert.doesNotMatch(css,/animation:blockAura/);
+console.log('OK : rendus plafonnés, niveaux statiques optimisés, gravité et repos préservés.');
