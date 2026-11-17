@@ -51,13 +51,13 @@ L'interface s'affiche automatiquement en **français** ou en **anglais** selon l
 
 ## Musique de fond
 
-Le jeu lit la musique `tetripz.mp3` en boucle pendant les parties (pause et fin de partie : arrêt temporaire). Le son ne démarre qu'après le clic **JOUER**, conformément aux restrictions des navigateurs. Le bouton **COUPER / ACTIVER** et le curseur de volume restent disponibles sur ordinateur et mobile. Les préférences `tetripz-music` et `tetripz-volume` sont conservées dans `localStorage`.
+Le jeu tente de lire la musique `tetripz.mp3` en boucle dès l'ouverture de la page, indépendamment de la partie (menu, pause, fin de partie). Les navigateurs peuvent bloquer la lecture automatique avec son : dans ce cas, la musique démarre dès la première interaction (clic, toucher ou touche du clavier), sans avoir besoin de lancer une partie. Le bouton **COUPER / ACTIVER** et le curseur de volume restent disponibles sur ordinateur et mobile. Les préférences `tetripz-music` et `tetripz-volume` sont conservées dans `localStorage`.
 
 **Déploiement du MP3 :** le fichier audio joint doit être placé à la **racine du dépôt GitHub**, sous le nom exact `tetripz.mp3` (à côté de `index.html`). Le code et l'interface peuvent être publiés indépendamment, mais **la musique n'est pas audible tant que le fichier binaire n'est pas présent sur GitHub Pages**.
 
 ## Version du jeu
 
-Version actuelle : **v1.14.1** (correction de la traduction anglaise du bouton « REJOUER » en « RESTART »).
+Version actuelle : **v1.14.2** (musique de fond indépendante de la partie, avec tentative de lecture dès l'ouverture).
 
 ## Licence
 
