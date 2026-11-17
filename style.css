@@ -24,3 +24,6 @@
 .mode-option.selected{border-color:var(--accent);background:#11334b;box-shadow:0 0 16px #00f0ff33}
 .mode-option:focus-visible{outline:3px solid #fff;outline-offset:3px}
 @media(max-width:410px){.overlay{padding:10px}.overlay h2{font-size:22px;letter-spacing:1px}.overlay p{margin:12px 0}.mode-menu{gap:5px}.mode-option{padding:10px 4px}.mode-option strong{font-size:11px}.mode-option span{font-size:9px}}
+
+/* Numéro de version discret dans le pied de page. */
+.app-version{display:inline-block;margin-left:10px;color:#8190ae;font-size:10px;letter-spacing:.5px;white-space:nowrap}
