@@ -51,7 +51,7 @@ const english={
   "0 · Normal":"0 · Normal",
   "FERMER":"CLOSE",
   "A JOUER AVEC MODERATION":"PLAY IN MODERATION",
-  "Jeu Tetripz":"Tetripz game",
+  "Jeu Tryptis":"Tryptis game",
   "Plateau Tetris de 10 colonnes et 20 lignes":"Tetris board with 10 columns and 20 rows",
   "Niveau des effets":"Effects level",
   "Aperçu de la prochaine pièce":"Next piece preview",
