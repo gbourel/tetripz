@@ -61,3 +61,146 @@
 .music-controls output{color:var(--accent)}
 .music-controls input[type=range]{display:block;width:100%;min-width:0;margin:0;accent-color:var(--accent);cursor:pointer;touch-action:manipulation}
 @media(max-width:410px){.music-controls button{font-size:9px;letter-spacing:0}}
+
+
+/* v1.12 — Block party psychédélique. Aucun effet sur la logique du plateau. */
+:root{
+  --bg:#090318;--panel:#1b1038;--border:#8f4bff;
+  --text:#fff9ff;--muted:#cfbee9;--accent:#9cff60;
+}
+body{
+  background:
+    radial-gradient(ellipse at 10% 8%,#fa30cb50 0,transparent 33%),
+    radial-gradient(ellipse at 92% 24%,#13eeef40 0,transparent 30%),
+    radial-gradient(ellipse at 58% 85%,#ff9c302b 0,transparent 38%),
+    repeating-linear-gradient(0deg,transparent 0 29px,#ae65fb16 29px 30px),
+    repeating-linear-gradient(90deg,transparent 0 29px,#ae65fb16 29px 30px),
+    #090318;
+}
+.app{position:relative}
+header{position:relative;padding:18px 0 10px}
+.eyebrow{
+  display:inline-block;padding:7px 15px;letter-spacing:3px;
+  color:#a9ff82;background:#210d43;border:1px solid #b367fa;
+  box-shadow:4px 4px 0 #ff43c677;
+}
+h1{
+  font-family:Impact,"Arial Black",system-ui,sans-serif;
+  font-weight:900;letter-spacing:clamp(2px,.8vw,8px);
+  background:linear-gradient(100deg,#ff4cbd,#ffda44,#47eaff,#bb6bff,#ff4cbd);
+  background-size:220% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  -webkit-text-stroke:1px #fff5;
+  text-shadow:4px 5px 0 #350d64;
+  filter:drop-shadow(0 0 17px #fc39b878);
+  animation:chromaTitle 11s linear infinite;
+}
+h1 span{color:#a4ff68;-webkit-text-stroke:1px #eaffc077}
+header p{color:#e5caff;text-shadow:0 0 12px #ff52cd99;letter-spacing:2.8px}
+header::before,header::after{
+  content:"";position:absolute;width:19px;height:19px;pointer-events:none;
+  filter:drop-shadow(0 0 10px currentColor);opacity:.8;
+}
+header::before{
+  left:6%;top:52px;color:#ff49c3;background:currentColor;
+  box-shadow:22px 0 currentColor,44px 0 currentColor,22px 22px currentColor;
+  transform:rotate(-15deg);
+}
+header::after{
+  right:10%;top:26px;color:#35f4ec;background:currentColor;
+  box-shadow:0 22px currentColor,0 44px currentColor,22px 44px currentColor;
+  transform:rotate(18deg);
+}
+.panel{
+  background:linear-gradient(155deg,#321450ed 0%,#120d2cf2 68%,#17183aeb 100%);
+  border:2px solid #8846e6;border-radius:13px;
+  box-shadow:inset 0 0 0 1px #ff74db26,6px 7px 0 #140720,0 0 24px #a64af127;
+}
+.stats{border-color:#ff4cbd}
+.side{border-color:#33dded}
+small,.side small{color:#f4b9f3}
+.stats .stat{
+  border:0;border-left:4px solid #f956c2;
+  padding:5px 0 6px 11px;
+  background:linear-gradient(90deg,#ff4cbd1a,transparent 84%);
+}
+.stats .stat:nth-child(2){border-left-color:#baff62;background:linear-gradient(90deg,#baff6217,transparent 84%)}
+.stats .stat:nth-child(3){border-left-color:#36ecff;background:linear-gradient(90deg,#36ecff17,transparent 84%)}
+.stats .stat:nth-child(4){border-left-color:#ffd04e;background:linear-gradient(90deg,#ffd04e17,transparent 84%)}
+.stat strong{color:#fff;text-shadow:0 0 16px #e061ffb8}
+.stats .stat:nth-child(2) strong{color:#c5ff8b}
+.board-wrap{
+  border:3px solid #72faff;border-radius:7px;
+  box-shadow:0 0 0 6px #271050,0 0 0 9px #f652c8b5,0 0 36px #a248fc99,0 0 70px #18f9ff42;
+  animation:blockAura 7s ease-in-out infinite;
+}
+.overlay{
+  background:linear-gradient(155deg,#16092aef,#240a43e9 48%,#090c22f0);
+  box-shadow:inset 0 0 55px #f047db42;
+}
+.overlay h2{
+  color:#baff73;text-shadow:3px 3px 0 #5c208b,0 0 22px #baff73a3;
+  font-family:Impact,"Arial Black",system-ui,sans-serif;
+}
+.overlay p{color:#f5dcff;line-height:1.5}
+button{
+  border:1px solid #ffe2a0;border-radius:8px;
+  background:linear-gradient(130deg,#adff61 0%,#39f9eb 100%);
+  color:#190d30;box-shadow:3px 4px 0 #572381,0 0 13px #9bff5a36;
+  text-shadow:none;
+}
+.secondary{
+  background:linear-gradient(135deg,#44236c,#22205e 85%);
+  color:#fcefff;border:1px solid #a768fb;
+  box-shadow:3px 4px 0 #0b0623,0 0 13px #d850fc2a;
+}
+button:focus-visible,select:focus-visible,input:focus-visible{
+  outline:3px solid #c8ff74;outline-offset:3px;
+}
+#start,#confirm-publish{background:linear-gradient(120deg,#ffe660,#ff65b8);border-color:#ffeeb7}
+.ui-difficulty-wrap select,#publish-name,.ranking-dialog select{
+  background:#260e47;color:#fff;border:2px solid #ba62f2;
+}
+.ui-difficulty-wrap label,.ranking-dialog label,#publish-form label{color:#bcff9c}
+.next canvas{border:2px solid #f854bb;box-shadow:0 0 20px #f854bb55}
+.controls kbd,.controls kbd{
+  background:#351b66;border:1px solid #d26afd;color:#d0ffb5;
+  box-shadow:2px 2px 0 #06051d;
+}
+.touch-row:first-child button:nth-child(1){background:linear-gradient(140deg,#31ebff,#ba74ff)}
+.touch-row:first-child button:nth-child(2){background:linear-gradient(140deg,#ffce3f,#fd62ae)}
+.touch-row:first-child button:nth-child(3){background:linear-gradient(140deg,#9dff58,#27cde8)}
+.touch-row:last-of-type button:first-child{background:linear-gradient(140deg,#f0a4ff,#a87aff)}
+.touch-row:last-of-type button:last-child{background:linear-gradient(140deg,#ff64ba,#ffb84b)}
+.touch-hint{color:#e0c5f4}
+.music-controls{padding-top:13px;border-top:2px dashed #c55bf988}
+.music-controls output{color:#b8ff79}
+.music-controls input[type=range]{accent-color:#ff69c9}
+.ranking-dialog{
+  background:linear-gradient(150deg,#2f1257,#10122c 90%);
+  border:3px solid #fd62c8;box-shadow:0 0 50px #d94aff8a;
+}
+.ranking-dialog h2{color:#beff78;text-shadow:0 0 16px #b6ff718c}
+#ranking-list li:nth-child(odd){background:#ff58c814}
+#ranking-list li:first-child{color:#ffe66c}
+footer{border-top:1px solid #b453f566;padding-top:18px;color:#dac4ef}
+.app-version{color:#beff81}
+@keyframes chromaTitle{to{background-position:220% 0}}
+@keyframes blockAura{
+  50%{box-shadow:0 0 0 6px #271050,0 0 0 9px #b9ff70a8,0 0 44px #ff4ac69f,0 0 80px #45fce85c}
+}
+@media(max-width:760px){
+  header::before,header::after{display:none}
+  .stats .stat{padding-left:7px}
+  .panel{box-shadow:inset 0 0 0 1px #ff74db26,3px 4px 0 #140720}
+}
+@media(max-width:410px){
+  h1{letter-spacing:2px;font-size:clamp(42px,11vw,62px)}
+  .panel{border-width:1px}
+  .stats .stat{padding-left:5px;border-left-width:3px}
+  .stat strong{font-size:19px}
+  .music-controls{padding-top:8px}
+}
+@media(prefers-reduced-motion:reduce){
+  h1,.board-wrap{animation:none!important}
+}
