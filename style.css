@@ -27,3 +27,8 @@
 .ui-difficulty-wrap select{width:100%;min-height:42px;padding:8px 12px;background:#1c2947;color:#f3f6ff;border:1px solid #536a98;border-radius:10px;font:700 13px inherit;font-family:inherit;font-weight:700}
 .ui-difficulty-wrap select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media(max-width:410px){.ui-difficulty-wrap{margin:0 0 10px}.ui-difficulty-wrap select{min-height:40px}}
+
+/* Vision double : copie indépendante, sans intercepter les gestes tactiles. */
+.double-vision{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen;transform-origin:center;will-change:transform,opacity,filter}
+.double-vision[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){.double-vision{display:none!important;will-change:auto}}
