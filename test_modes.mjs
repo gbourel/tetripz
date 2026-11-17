@@ -13,7 +13,7 @@ assert.match(html, /<option value="0" selected>/);
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
 assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
-assert.match(html, /v1\.10\.0/);
+assert.match(html, /v1\.11\.0/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
 assert.equal((html.match(/class="double-vision"/g)||[]).length,3);
 assert.match(js, /uiDifficulty>0&&!reduceMotion\.matches/);
@@ -156,6 +156,7 @@ const checkRecord=new Function('points','before','backendReady',`
   let shown='';
   function showOverlay(title,message,button){shown=title+' '+message+' '+button;overlayMessage.textContent=message}
   const leaderboardReady=()=>backendReady;
+  function syncMusic(){}
   ${js.slice(overStart,overEnd)}
   gameOver();
   return {shown,visible:!publishBtn.hidden,disabled:publishBtn.disabled,state};
@@ -241,3 +242,65 @@ assert.match(js,/uiDifficultySelect\.addEventListener\('change',\(\)=>\{uiDiffic
 assert.match(js,/function startGame\(\)\{bestBeforeGame=bestByDifficulty\[uiDifficulty\]/);
 assert.match(html,/id="best-label"/);
 console.log('OK : cinq records distincts, changement de difficulté, ancien record conservé.');
+
+// La musique démarre uniquement pendant une partie, avec volume et arrêt réglables.
+assert.match(html,/id="music"[^>]*src="tetripz\.mp3"[^>]*loop/);
+assert.match(html,/id="music-volume" type="range"/);
+assert.match(html,/id="music-toggle"[^>]*aria-pressed/);
+assert.match(js,/syncMusic\(\)/);
+const musicStart=js.indexOf('// Musique : la lecture');
+const musicEnd=js.indexOf('const uiDifficultyWrap=',musicStart);
+assert.ok(musicStart>=0&&musicEnd>musicStart);
+const exerciseMusic=new Function('saved',`
+  let state='ready';
+  const data=new Map(saved);
+  const localStorage={
+    getItem(key){return data.get(key)??null},
+    setItem(key,value){data.set(key,value)}
+  };
+  const musicElement={
+    volume:0,plays:0,pauses:0,
+    play(){this.plays++;return Promise.resolve()},
+    pause(){this.pauses++}
+  };
+  const musicToggle={handlers:{},textContent:'',attrs:{},
+    addEventListener(name,callback){this.handlers[name]=callback},
+    setAttribute(name,value){this.attrs[name]=value}
+  };
+  const musicVolume={handlers:{},value:'40',
+    addEventListener(name,callback){this.handlers[name]=callback}
+  };
+  const musicVolumeValue={textContent:''};
+  const lookup={
+    '#music':musicElement,'#music-toggle':musicToggle,
+    '#music-volume':musicVolume,'#music-volume-value':musicVolumeValue
+  };
+  const document={querySelector(selector){return lookup[selector]}};
+  ${js.slice(musicStart,musicEnd)}
+  return {
+    musicElement,musicToggle,musicVolume,musicVolumeValue,data,
+    state(value){state=value;syncMusic()},
+    toggle(){musicToggle.handlers.click()},
+    volume(value){musicVolume.value=String(value);musicVolume.handlers.input()}
+  };
+`);
+const soundtrack=exerciseMusic([['tetripz-music','off'],['tetripz-volume','65']]);
+assert.equal(soundtrack.musicElement.plays,0);
+assert.equal(soundtrack.musicElement.volume,.65);
+assert.equal(soundtrack.musicVolumeValue.textContent,'65 %');
+soundtrack.state('playing');
+assert.equal(soundtrack.musicElement.plays,0); // arrêt enregistré
+soundtrack.toggle();
+assert.equal(soundtrack.musicElement.plays,1);
+assert.equal(soundtrack.musicToggle.textContent,'COUPER');
+soundtrack.volume(25);
+assert.equal(soundtrack.musicElement.volume,.25);
+assert.equal(soundtrack.data.get('tetripz-volume'),'25');
+soundtrack.state('paused');
+assert.ok(soundtrack.musicElement.pauses>=1);
+soundtrack.state('playing');
+assert.equal(soundtrack.musicElement.plays,2);
+soundtrack.toggle();
+assert.equal(soundtrack.musicToggle.textContent,'ACTIVER');
+assert.equal(soundtrack.data.get('tetripz-music'),'off');
+console.log('OK : musique activable, stoppable, volume conservé et pause synchronisée.');
