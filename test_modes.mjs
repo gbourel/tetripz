@@ -302,10 +302,11 @@ assert.equal(soundtrack.musicToggle.textContent,'COUPER');
 soundtrack.volume(25);
 assert.equal(soundtrack.musicElement.volume,.25);
 assert.equal(soundtrack.data.get('tetripz-volume'),'25');
+const pausesBefore=soundtrack.musicElement.pauses;
 soundtrack.state('paused');
-assert.equal(soundtrack.musicElement.pauses,0); // La pause du jeu ne coupe pas la musique.
+assert.equal(soundtrack.musicElement.pauses,pausesBefore); // La pause du jeu ne coupe pas la musique.
 soundtrack.state('ready');
-assert.equal(soundtrack.musicElement.pauses,0); // Le menu non plus.
+assert.equal(soundtrack.musicElement.pauses,pausesBefore); // Le menu non plus.
 soundtrack.toggle();
 assert.equal(soundtrack.musicToggle.textContent,'ACTIVER');
 assert.equal(soundtrack.data.get('tetripz-music'),'off');
