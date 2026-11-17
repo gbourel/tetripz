@@ -7,6 +7,11 @@ const nextCanvas=document.querySelector('#next'),nextCtx=nextCanvas.getContext('
 const scoreEl=document.querySelector('#score'),bestEl=document.querySelector('#best'),linesEl=document.querySelector('#lines'),levelEl=document.querySelector('#level');
 const overlay=document.querySelector('#overlay'),overlayTitle=document.querySelector('#overlay-title'),overlayMessage=document.querySelector('#overlay-message');
 const startBtn=document.querySelector('#start'),pauseBtn=document.querySelector('#pause');
+const modeMenu=document.querySelector('#mode-menu');
+let selectedMode='normal';
+function selectMode(mode){if(mode!=='normal'&&mode!=='ui')return;selectedMode=mode;modeMenu.querySelectorAll('[data-mode]').forEach(btn=>{const chosen=btn.dataset.mode===mode;btn.classList.toggle('selected',chosen);btn.setAttribute('aria-pressed',String(chosen))})}
+modeMenu.querySelectorAll('[data-mode]').forEach(btn=>btn.addEventListener('click',()=>selectMode(btn.dataset.mode)));
+
 let board,active,nextPiece,bag=[],score=0,lines=0,level=1,best=0,state='ready',lastTime=0,dropCounter=0;
 try{best=Number(localStorage.getItem('tetripz-best'))||0}catch(_e){}bestEl.textContent=best;
 function emptyBoard(){return Array.from({length:ROWS},()=>Array(COLS).fill(null))}
@@ -19,8 +24,8 @@ function rotate(){if(state!=='playing')return;const m=active.matrix;const rotate
 function hardDrop(){if(state!=='playing')return;let n=0;while(!collides(active.matrix,active.x,active.y+1)){active.y++;n++}score+=n*2;lockPiece()}
 function lockPiece(){for(let r=0;r<active.matrix.length;r++)for(let c=0;c<active.matrix[r].length;c++)if(active.matrix[r][c]){const y=active.y+r;if(y<0){gameOver();return}board[y][active.x+c]=active.type}let cleared=0;for(let y=ROWS-1;y>=0;y--){if(board[y].every(Boolean)){board.splice(y,1);board.unshift(Array(COLS).fill(null));cleared++;y++}}if(cleared){score+=[0,100,300,500,800][cleared]*level;lines+=cleared;level=Math.floor(lines/10)+1}updateStats();spawn();dropCounter=0}
 function updateStats(){scoreEl.textContent=score.toLocaleString('fr-FR');linesEl.textContent=lines;levelEl.textContent=level;if(score>best){best=score;bestEl.textContent=best.toLocaleString('fr-FR');try{localStorage.setItem('tetripz-best',String(best))}catch(_e){}}}
-function showOverlay(title,message,button){overlayTitle.textContent=title;overlayMessage.textContent=message;startBtn.textContent=button;overlay.classList.remove('hidden')}
-function startGame(){swellTime=0;board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now()}
+function showOverlay(title,message,button){modeMenu.hidden=state==='paused';overlayTitle.textContent=title;overlayMessage.textContent=message;startBtn.textContent=button;overlay.classList.remove('hidden')}
+function startGame(){modeMenu.hidden=true;swellTime=0;board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now()}
 function gameOver(){state='over';pauseBtn.disabled=true;showOverlay('GAME OVER',`Score : ${score.toLocaleString('fr-FR')}`,'REJOUER')}
 function togglePause(){if(state==='playing'){state='paused';pauseBtn.textContent='REPRENDRE';showOverlay('PAUSE','Prends ton temps.','REPRENDRE')}else if(state==='paused'){state='playing';pauseBtn.textContent='PAUSE';overlay.classList.add('hidden');lastTime=performance.now()}}
 function cell(context,x,y,color,size=SIZE,alpha=1){context.globalAlpha=alpha;context.fillStyle=color;context.fillRect(x*size+1,y*size+1,size-2,size-2);context.fillStyle='#ffffff35';context.fillRect(x*size+3,y*size+3,size-6,3);context.globalAlpha=1}
@@ -31,7 +36,7 @@ const boardWrap=document.querySelector('.board-wrap');
 const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 let swellTime=0;
 function animateSwell(dt){
-  if(state!=='playing'||reduceMotion.matches){
+  if(state!=='playing'||selectedMode!=='ui'||reduceMotion.matches){
     boardWrap.style.transform='none';
     return;
   }
@@ -100,4 +105,4 @@ boardCanvas.addEventListener('pointerup',e=>{
 });
 boardCanvas.addEventListener('pointercancel',()=>{boardTouch=null});
 startBtn.addEventListener('click',()=>state==='paused'?togglePause():startGame());pauseBtn.addEventListener('click',togglePause);
-board=emptyBoard();showOverlay('PRÊT ?','Fais tomber les blocs !','JOUER');requestAnimationFrame(frame);
+board=emptyBoard();showOverlay('CHOISIS TON MODE','Normal ou UI : à toi de choisir !','JOUER');requestAnimationFrame(frame);
