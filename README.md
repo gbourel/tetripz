@@ -29,6 +29,19 @@ Des boutons tactiles sont disponibles sur mobile.
 
 Dans le dépôt GitHub : **Settings → Pages → Deploy from a branch → main / (root) → Save**.
 
+## Version du jeu
+
+Version actuelle : **v1.0.0** (point de départ du suivi des versions).
+
+Le numéro de version est affiché discrètement dans le pied de page du jeu et défini dans `index.html` (élément `#app-version`).
+
+**À chaque modification publiée du jeu**, incrémenter la version dans `index.html` et mettre à jour la version indiquée ici :
+- Correctif ou petit ajustement : `1.0.0 → 1.0.1`
+- Nouvelle fonctionnalité : `1.0.1 → 1.1.0`
+- Changement majeur : `1.1.0 → 2.0.0`
+
+Cette incrémentation est une convention de maintenance : elle doit être appliquée à chaque prochaine modification, elle n'est pas automatique.
+
 ## Licence
 
 Projet de démonstration, libre à adapter pour un usage personnel.
