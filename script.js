@@ -13,7 +13,7 @@ const confirmPublishBtn=document.querySelector('#confirm-publish');
 const rankingBtn=document.querySelector('#ranking'),rankingDialog=document.querySelector('#ranking-dialog');
 const rankingLevel=document.querySelector('#ranking-level'),rankingList=document.querySelector('#ranking-list'),rankingStatus=document.querySelector('#ranking-status');
 // Clé PUBLIQUE uniquement (jamais de clé secret/service_role) : voir README.
-const SUPABASE_URL='',SUPABASE_PUBLISHABLE_KEY='';
+const SUPABASE_URL='https://pmpguuqcpljcyrkffgdk.supabase.co',SUPABASE_PUBLISHABLE_KEY='sb_publishable_SeTAHD6jyQ8fnI1ZD5lPHw_YKwPnal4';
 const leaderboardReady=()=>SUPABASE_URL.startsWith('https://')&&SUPABASE_PUBLISHABLE_KEY.startsWith('sb_publishable_');
 async function leaderboardRequest(path,options={}){
   const response=await fetch(`${SUPABASE_URL.replace(/\/$/,'')}/rest/v1/${path}`,{
