@@ -395,7 +395,7 @@ console.log('OK : logo néon 3D, favicon PNG et en-tête mobile.');
 
 assert.match(html, /<header>[\s\S]*?class="music-controls"[\s\S]*?<\/header>/);
 assert.match(html, /<details class="controls"><summary data-i18n="COMMANDES">/);
-assert.match(html, /<\/aside>\s*<nav class="touch-controls"[\s\S]*?<\/nav>\s*<\/section>/);
+assert.match(html, /<\/aside>\s*<nav class="touch-controls"[\s\S]*?<\/nav>\s*<button id="ranking"/);
 assert.match(css, /\.touch-controls\{grid-column:1\/-1;grid-row:2/);
 assert.match(css, /\.stats\{grid-row:3\}/);
 assert.match(css, /\.board-wrap\{\s*width:min\(100%,max\(170px,\(100dvh - 290px\)\/2\)\)/);
