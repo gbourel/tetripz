@@ -19,7 +19,7 @@ Ouvrez `index.html` dans votre navigateur. Cliquez sur **JOUER**.
 | P | Pause / reprendre |
 | R | Recommencer |
 
-Sur mobile, les boutons tactiles sont placés au-dessus du plateau ; le classement est juste sous le plateau. Le logo est affiché au-dessus du titre et les slogans superflus sont supprimés. L'aide aux raccourcis clavier est repliée sur ordinateur et masquée sur téléphone. Le bouton **MENU**, à côté de **PAUSE**, permet de quitter une partie en cours (même en pause) et de choisir un autre niveau sans perdre le record.
+Sur mobile, les boutons tactiles sont placés sous le plateau, avec une priorité d'affichage supérieure au plateau lors des rotations ; le classement est juste en dessous. Le logo est affiché au-dessus du titre et les slogans superflus sont supprimés. L'aide aux raccourcis clavier est repliée sur ordinateur et masquée sur téléphone. Le bouton **MENU**, à côté de **PAUSE**, permet de quitter une partie en cours (même en pause) et de choisir un autre niveau sans perdre le record.
 
 ## Fonctionnalités
 
@@ -55,11 +55,11 @@ Le jeu tente de lire la musique `tryptis.mp3` en boucle dès l'ouverture de la p
 
 **Déploiement du MP3 :** le fichier audio joint doit être placé à la **racine du dépôt GitHub**, sous le nom exact `tryptis.mp3` (à côté de `index.html`). Le code et l'interface peuvent être publiés indépendamment, mais **la musique n'est pas audible tant que le fichier binaire n'est pas présent sur GitHub Pages**.
 
-Les anciens noms de fichiers (`tryptis.mp3`, images), clés `localStorage` et l'adresse GitHub Pages sont conservés pour ne pas perdre les données ni casser les liens.
+Les anciens noms de fichiers (`tryptis.mp3`, images), clés `localStorage` et l'adresse GitHub Pages suit désormais le dépôt renommé `gbourel/tryptis` ; les clés `localStorage` sont conservées pour ne pas perdre les données ni casser les liens.
 
 ## Version du jeu
 
-Version actuelle : **v1.18.0** (commandes tactiles au-dessus du plateau, classement en dessous, logo déplacé et slogans supprimés).
+Version actuelle : **v1.18.1** (commandes tactiles sous le plateau avec z-index supérieur, dépôt GitHub renommé en tryptis).
 
 ## Licence
 
