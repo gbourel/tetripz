@@ -44,6 +44,10 @@ Le Top 10 est séparé pour chacun des cinq niveaux d'effets (0 à 4). Le record
 
 L'ancien record commun (`tetripz-best`) est conservé dans le navigateur sans être attribué à un niveau précis, car sa difficulté d'origine est inconnue. Les records par niveau commencent à zéro si aucun score correspondant n'était déjà enregistré.
 
+## Langue de l'interface
+
+L'interface s'affiche automatiquement en **français** ou en **anglais** selon les préférences de langue du navigateur (`navigator.languages`). La première langue reconnue parmi `fr` et `en` est utilisée, avec **anglais par défaut**. Les libellés des boutons, les difficultés, les indications tactiles, les messages de partie, la publication des scores et le classement sont traduits ; les valeurs des scores sont formatées dans la langue sélectionnée. Il suffit de changer la langue du navigateur et de recharger la page.
+
 ## Musique de fond
 
 Le jeu lit la musique `tetripz.mp3` en boucle pendant les parties (pause et fin de partie : arrêt temporaire). Le son ne démarre qu'après le clic **JOUER**, conformément aux restrictions des navigateurs. Le bouton **COUPER / ACTIVER** et le curseur de volume restent disponibles sur ordinateur et mobile. Les préférences `tetripz-music` et `tetripz-volume` sont conservées dans `localStorage`.
@@ -52,7 +56,7 @@ Le jeu lit la musique `tetripz.mp3` en boucle pendant les parties (pause et fin 
 
 ## Version du jeu
 
-Version actuelle : **v1.12.0** (nouvel habillage psychédélique inspiré de Tetris, sans modifier le fonctionnement du jeu).
+Version actuelle : **v1.13.0** (interface bilingue française/anglaise selon les langues préférées du navigateur).
 
 ## Licence
 
