@@ -13,7 +13,7 @@ assert.match(html, /<option value="0" selected>/);
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
 assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
-assert.match(html, /v1\.11\.0/);
+assert.match(html, /v1\.12\.0/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
 assert.equal((html.match(/class="double-vision"/g)||[]).length,3);
 assert.match(js, /uiDifficulty>0&&!reduceMotion\.matches/);
@@ -304,3 +304,19 @@ soundtrack.toggle();
 assert.equal(soundtrack.musicToggle.textContent,'ACTIVER');
 assert.equal(soundtrack.data.get('tetripz-music'),'off');
 console.log('OK : musique activable, stoppable, volume conservé et pause synchronisée.');
+
+// Le thème psychédélique conserve les points d'entrée et l'accessibilité du jeu.
+assert.match(html, /ARCADE \/ BLOCK PARTY/);
+assert.match(html, /name="theme-color" content="#130726"/);
+assert.match(html, /script\.js\?v=1\.12\.0/);
+assert.match(html, /style\.css\?v=1\.12\.0/);
+assert.match(css, /--accent:#9cff60/);
+assert.match(css, /header::before,header::after/); // tétriminos décoratifs
+assert.match(css, /repeating-linear-gradient/); // grille Tetris
+assert.match(css, /@keyframes chromaTitle/);
+assert.match(css, /@keyframes blockAura/);
+assert.match(css, /\.touch-row:first-child button:nth-child\(2\)/);
+assert.match(css, /@media\(max-width:760px\)/);
+assert.match(css, /@media\(prefers-reduced-motion:reduce\)\{\s*h1,\.board-wrap\{animation:none!important\}/);
+assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length);
+console.log('OK : thème psychédélique, couleurs contrastées, responsive et mouvement réduit.');
