@@ -20,7 +20,7 @@ async function leaderboardRequest(path,options={}){
     ...options,headers:{apikey:SUPABASE_PUBLISHABLE_KEY,...options.headers}
   });
   if(!response.ok)throw Error(`Supabase HTTP ${response.status}`);
-  return response.status===204?null:response.json();
+  return response.status===204||options.headers?.Prefer==='return=minimal'?null:response.json();
 }
 const uiDifficultyWrap=document.querySelector('#ui-difficulty-wrap');
 const uiDifficultySelect=document.querySelector('#ui-difficulty');
