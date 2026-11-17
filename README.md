@@ -1,4 +1,4 @@
-# Tetripz 🎮
+# Tryptis 🎮
 
 Un jeu de blocs façon Tetris, en **HTML, CSS et JavaScript vanilla**. Aucun framework, aucune dépendance.
 
@@ -29,7 +29,7 @@ Sur mobile, les boutons tactiles sont placés directement sous le plateau, avant
 - Meilleur score enregistré localement **par niveau d'effets (0 à 4)**
 - Bande-son en boucle avec icône de haut-parleur et volume compact en haut de page (préférences mémorisées dans le navigateur)
 - Thème arcade psychédélique et responsive : tétriminos décoratifs, quadrillage, reflets multicolores, panneaux néon et animations respectant « réduire les animations ».
-- Logo psychédélique en tétriminos 3D généré pour Tetripz (`assets/tetripz-logo.png`) ; la même icône est affichée près du titre et utilisée comme favicon du navigateur.
+- Logo psychédélique en tétriminos 3D généré pour Tryptis (`assets/tetripz-logo.png`) ; la même icône est affichée près du titre et utilisée comme favicon du navigateur.
 - Retour au menu depuis une partie en cours ou en pause, sans effacer le meilleur score
 - Un seul sélecteur de niveau dans l'ordre : 0 (jeu normal sans effet), puis 1 (houle douce) à 4 (houle extrême)
 - Houle, zoom aléatoire et effet de vision double uniquement pour les niveaux 1 à 4
@@ -55,9 +55,11 @@ Le jeu tente de lire la musique `tetripz.mp3` en boucle dès l'ouverture de la p
 
 **Déploiement du MP3 :** le fichier audio joint doit être placé à la **racine du dépôt GitHub**, sous le nom exact `tetripz.mp3` (à côté de `index.html`). Le code et l'interface peuvent être publiés indépendamment, mais **la musique n'est pas audible tant que le fichier binaire n'est pas présent sur GitHub Pages**.
 
+Les anciens noms de fichiers (`tetripz.mp3`, images), clés `localStorage` et l'adresse GitHub Pages sont conservés pour ne pas perdre les données ni casser les liens.
+
 ## Version du jeu
 
-Version actuelle : **v1.15.0** (commandes tactiles remontées, aide clavier repliable, lecteur audio compact en haut).
+Version actuelle : **v1.16.0** (nouveau nom Tryptis dans l'interface et les libellés accessibles).
 
 ## Licence
 
