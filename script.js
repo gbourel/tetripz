@@ -408,4 +408,4 @@ boardCanvas.addEventListener('pointerup',e=>{
 });
 boardCanvas.addEventListener('pointercancel',()=>{boardTouch=null});
 startBtn.addEventListener('click',()=>state==='paused'?togglePause():startGame());pauseBtn.addEventListener('click',togglePause);menuBtn.addEventListener('click',goToMenu);
-board=emptyBoard();showOverlay('CHOISIS TON NIVEAU','Choisis l’intensité des effets.','JOUER');requestAnimationFrame(frame);
+board=emptyBoard();showOverlay('CHOISIS TON NIVEAU','Choisis l’intensité des effets.','JOUER');syncMusic();requestAnimationFrame(frame);
