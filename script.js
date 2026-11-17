@@ -2,6 +2,84 @@
 const COLS=10,ROWS=20,SIZE=30;
 const SHAPES={I:[[1,1,1,1]],O:[[1,1],[1,1]],T:[[0,1,0],[1,1,1]],S:[[0,1,1],[1,1,0]],Z:[[1,1,0],[0,1,1]],J:[[1,0,0],[1,1,1]],L:[[0,0,1],[1,1,1]]};
 const COLORS={I:'#00e5ff',O:'#ffe35a',T:'#b777ff',S:'#42f5a1',Z:'#ff547d',J:'#5e89ff',L:'#ffac4d'};
+// French for French-language browsers; English for other browser languages.
+const browserLanguages=navigator.languages?.length?navigator.languages:[navigator.language||'en'];
+const appLanguage=browserLanguages.map(locale=>locale.toLowerCase().split('-')[0]).find(locale=>locale==='fr'||locale==='en')||'en';
+const english={
+  "ARCADE / BLOCK PARTY":"ARCADE / BLOCK PARTY",
+  "SCORE":"SCORE",
+  "LIGNES":"LINES",
+  "NIVEAU":"LEVEL",
+  "CHOISIS TON NIVEAU":"CHOOSE YOUR LEVEL",
+  "Choisis l’intensité des effets.":"Choose your visual effects intensity.",
+  "INTENSITÉ DES EFFETS":"EFFECTS INTENSITY",
+  "0 · Normal (sans effets)":"0 · Normal (no effects)",
+  "1 · Un peu":"1 · A little",
+  "2 · Ça va":"2 · All right",
+  "3 · Oups":"3 · Uh-oh",
+  "4 · Trop pris":"4 · Way too much",
+  "JOUER":"PLAY",
+  "PUBLIER MON RECORD":"SUBMIT MY RECORD",
+  "PSEUDO (2 À 20 CARACTÈRES)":"NAME (2–20 CHARACTERS)",
+  "ENVOYER":"SUBMIT",
+  "ANNULER":"CANCEL",
+  "PROCHAINE PIÈCE":"NEXT PIECE",
+  "COMMANDES":"CONTROLS",
+  "Déplacer":"Move",
+  "Tourner":"Rotate",
+  "Descendre":"Soft drop",
+  "Espace":"Space",
+  "Chute rapide":"Hard drop",
+  "Pause":"Pause",
+  "Rejouer":"Restart",
+  "PAUSE":"PAUSE",
+  "REPRENDRE":"RESUME",
+  "MENU":"MENU",
+  "CLASSEMENT":"LEADERBOARD",
+  "MUSIQUE":"MUSIC",
+  "COUPER":"MUTE",
+  "ACTIVER":"UNMUTE",
+  "VOLUME":"VOLUME",
+  "DESCENDRE":"DOWN",
+  "CHUTE":"DROP",
+  "Maintiens ◀, ▶ ou ▼ pour répéter · Touche le plateau pour tourner":"Hold ◀, ▶ or ▼ to repeat · Tap the board to rotate",
+  "TOP 10 MONDIAL":"GLOBAL TOP 10",
+  "NIVEAU D'EFFETS":"EFFECTS LEVEL",
+  "0 · Normal":"0 · Normal",
+  "FERMER":"CLOSE",
+  "A JOUER AVEC MODERATION":"PLAY IN MODERATION",
+  "Jeu Tetripz":"Tetripz game",
+  "Plateau Tetris de 10 colonnes et 20 lignes":"Tetris board with 10 columns and 20 rows",
+  "Niveau des effets":"Effects level",
+  "Aperçu de la prochaine pièce":"Next piece preview",
+  "Volume de la musique":"Music volume",
+  "Commandes tactiles":"Touch controls",
+  "Déplacer à gauche":"Move left",
+  "Tourner la pièce":"Rotate piece",
+  "Déplacer à droite":"Move right",
+  "Descendre plus vite":"Soft drop",
+  "Faire tomber immédiatement":"Hard drop",
+  "Version du jeu":"Game version",
+  "RECORD · EFFETS":"BEST · EFFECTS",
+  "GAME OVER":"GAME OVER",
+  "Nouveau record :":"New personal best:",
+  "Score :":"Score:",
+  "Classement mondial à configurer.":"Global leaderboard needs configuration.",
+  "Record publié ! Merci pour ta participation.":"Record submitted! Thanks for playing.",
+  "Publication impossible. Réessaie plus tard.":"Couldn't submit the score. Try again later.",
+  "Choisis un pseudo de 2 à 20 caractères.":"Enter a name between 2 and 20 characters.",
+  "Publication en cours…":"Submitting score…",
+  "Classement mondial non configuré.":"Global leaderboard is not configured.",
+  "Chargement…":"Loading…",
+  "Aucun score publié à ce niveau.":"No scores submitted for this level yet.",
+  "Classement indisponible pour le moment.":"Leaderboard is currently unavailable.",
+  "Prends ton temps.":"Take your time."
+};
+const tr=text=>appLanguage==='en'?(english[text]??text):text;
+const formatScore=value=>Number(value).toLocaleString(appLanguage==='fr'?'fr-FR':'en-US');
+document.documentElement.lang=appLanguage;
+document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=tr(el.dataset.i18n)});
+document.querySelectorAll('[data-i18n-aria-label]').forEach(el=>{el.setAttribute('aria-label',tr(el.dataset.i18nAriaLabel))});
 const boardCanvas=document.querySelector('#board'),ctx=boardCanvas.getContext('2d');
 const nextCanvas=document.querySelector('#next'),nextCtx=nextCanvas.getContext('2d');
 const scoreEl=document.querySelector('#score'),bestEl=document.querySelector('#best'),bestLabel=document.querySelector('#best-label'),linesEl=document.querySelector('#lines'),levelEl=document.querySelector('#level');
@@ -34,7 +112,7 @@ try{
 music.volume=Number(musicVolume.value)/100;
 musicVolumeValue.textContent=`${musicVolume.value} %`;
 function syncMusic(){
-  musicToggle.textContent=musicEnabled?'COUPER':'ACTIVER';
+  musicToggle.textContent=tr(musicEnabled?'COUPER':'ACTIVER');
   musicToggle.setAttribute('aria-pressed',String(musicEnabled));
   if(musicEnabled&&state==='playing')music.play().catch(()=>{}); // Un refus audio ne bloque pas le jeu.
   else music.pause();
@@ -62,8 +140,8 @@ const bestByDifficulty=Array.from({length:5},(_,i)=>{
   catch(_e){return 0}
 });
 function showBest(){
-  bestEl.textContent=bestByDifficulty[uiDifficulty].toLocaleString('fr-FR');
-  bestLabel.textContent=`RECORD · EFFETS ${uiDifficulty}`;
+  bestEl.textContent=formatScore(bestByDifficulty[uiDifficulty]);
+  bestLabel.textContent=`${tr('RECORD · EFFETS')} ${uiDifficulty}`;
 }
 showBest();
 function emptyBoard(){return Array.from({length:ROWS},()=>Array(COLS).fill(null))}
@@ -75,21 +153,21 @@ function move(dx,dy){if(state!=='playing')return false;if(!collides(active.matri
 function rotate(){if(state!=='playing')return;const m=active.matrix;const rotated=m[0].map((_,i)=>m.map(row=>row[i]).reverse());for(const dx of [0,-1,1,-2,2])if(!collides(rotated,active.x+dx,active.y)){active.matrix=rotated;active.x+=dx;break}}
 function hardDrop(){if(state!=='playing')return;let n=0;while(!collides(active.matrix,active.x,active.y+1)){active.y++;n++}score+=n*2;lockPiece()}
 function lockPiece(){for(let r=0;r<active.matrix.length;r++)for(let c=0;c<active.matrix[r].length;c++)if(active.matrix[r][c]){const y=active.y+r;if(y<0){gameOver();return}board[y][active.x+c]=active.type}let cleared=0;for(let y=ROWS-1;y>=0;y--){if(board[y].every(Boolean)){board.splice(y,1);board.unshift(Array(COLS).fill(null));cleared++;y++}}if(cleared){score+=[0,100,300,500,800][cleared]*level;lines+=cleared;level=Math.floor(lines/10)+1}updateStats();spawn();dropCounter=0}
-function updateStats(){scoreEl.textContent=score.toLocaleString('fr-FR');linesEl.textContent=lines;levelEl.textContent=level;if(score>bestByDifficulty[uiDifficulty]){bestByDifficulty[uiDifficulty]=score;showBest();try{localStorage.setItem(`tetripz-best-${uiDifficulty}`,String(score))}catch(_e){}}}
+function updateStats(){scoreEl.textContent=formatScore(score);linesEl.textContent=lines;levelEl.textContent=level;if(score>bestByDifficulty[uiDifficulty]){bestByDifficulty[uiDifficulty]=score;showBest();try{localStorage.setItem(`tetripz-best-${uiDifficulty}`,String(score))}catch(_e){}}}
 function showOverlay(title,message,button){
   uiDifficultyWrap.hidden=state!=='ready';
   publishBtn.hidden=true;publishForm.hidden=true;
-  overlayTitle.textContent=title;overlayMessage.textContent=message;
-  startBtn.textContent=button;overlay.classList.remove('hidden');
+  overlayTitle.textContent=tr(title);overlayMessage.textContent=tr(message);
+  startBtn.textContent=tr(button);overlay.classList.remove('hidden');
 }
-function startGame(){bestBeforeGame=bestByDifficulty[uiDifficulty];publishedThisGame=false;rankingBtn.disabled=true;uiDifficultyWrap.hidden=true;publishBtn.hidden=true;publishForm.hidden=true;wobbleTime=0;brickHue=0;brickSat=1;brickFilter='none';if(uiDifficulty>=3)chooseBrickColors();swellTime=0;spinAngle=0;spinDirection=Math.random()<.5?-1:1;zoomScale=1;zoomFrom=1;zoomTarget=1;zoomElapsed=0;if(uiDifficulty>0){chooseZoomTarget();resetDoubleVision()}board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;menuBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now();syncMusic()}
+function startGame(){bestBeforeGame=bestByDifficulty[uiDifficulty];publishedThisGame=false;rankingBtn.disabled=true;uiDifficultyWrap.hidden=true;publishBtn.hidden=true;publishForm.hidden=true;wobbleTime=0;brickHue=0;brickSat=1;brickFilter='none';if(uiDifficulty>=3)chooseBrickColors();swellTime=0;spinAngle=0;spinDirection=Math.random()<.5?-1:1;zoomScale=1;zoomFrom=1;zoomTarget=1;zoomElapsed=0;if(uiDifficulty>0){chooseZoomTarget();resetDoubleVision()}board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;menuBtn.disabled=false;pauseBtn.textContent=tr('PAUSE');lastTime=performance.now();syncMusic()}
 function gameOver(){
   state='over';pauseBtn.disabled=true;menuBtn.disabled=true;rankingBtn.disabled=false;
   const record=score>0&&score>bestBeforeGame;
-  showOverlay('GAME OVER',record?`Nouveau record : ${score.toLocaleString('fr-FR')} !`:`Score : ${score.toLocaleString('fr-FR')}`,'REJOUER');
+  showOverlay('GAME OVER',record?`${tr('Nouveau record :')} ${formatScore(score)} !`:`${tr('Score :')} ${formatScore(score)}`,'REJOUER');
   publishBtn.hidden=!record;
   publishBtn.disabled=!leaderboardReady();
-  if(record&&!leaderboardReady())overlayMessage.textContent+=' Classement mondial à configurer.';
+  if(record&&!leaderboardReady())overlayMessage.textContent+=' '+tr('Classement mondial à configurer.');
   syncMusic();
 }
 function goToMenu(){
@@ -99,7 +177,7 @@ function goToMenu(){
   score=0;lines=0;level=1;dropCounter=0;
   updateStats();drawNext();
   boardWrap.style.transform='none';ghostLayers.forEach(layer=>{layer.canvas.hidden=true});
-  pauseBtn.disabled=true;pauseBtn.textContent='PAUSE';menuBtn.disabled=true;rankingBtn.disabled=false;
+  pauseBtn.disabled=true;pauseBtn.textContent=tr('PAUSE');menuBtn.disabled=true;rankingBtn.disabled=false;
   showOverlay('CHOISIS TON NIVEAU','Choisis l’intensité des effets.','JOUER');
   syncMusic();
 }
@@ -116,36 +194,36 @@ document.querySelector('#cancel-publish').addEventListener('click',()=>{
 publishForm.addEventListener('submit',async event=>{
   event.preventDefault();
   const pseudo=publishName.value.trim().replace(/\s+/g,' ');
-  if(pseudo.length<2||pseudo.length>20){publishStatus.textContent='Choisis un pseudo de 2 à 20 caractères.';return}
+  if(pseudo.length<2||pseudo.length>20){publishStatus.textContent=tr('Choisis un pseudo de 2 à 20 caractères.');return}
   if(state!=='over'||score<=bestBeforeGame||publishedThisGame||!leaderboardReady())return;
-  confirmPublishBtn.disabled=true;publishStatus.textContent='Publication en cours…';
+  confirmPublishBtn.disabled=true;publishStatus.textContent=tr('Publication en cours…');
   const gameScore=score,gameDifficulty=uiDifficulty;
   try{
     await leaderboardRequest('scores',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({pseudo,score:gameScore,difficulty:gameDifficulty})});
     publishedThisGame=true;
     if(state==='over'){
       publishForm.hidden=true;publishBtn.hidden=true;
-      overlayMessage.textContent='Record publié ! Merci pour ta participation.';
+      overlayMessage.textContent=tr('Record publié ! Merci pour ta participation.');
     }
   }catch(_error){
-    publishStatus.textContent='Publication impossible. Réessaie plus tard.';
+    publishStatus.textContent=tr('Publication impossible. Réessaie plus tard.');
   }finally{confirmPublishBtn.disabled=false}
 });
 async function loadRanking(){
   const difficulty=Number(rankingLevel.value);
   rankingList.replaceChildren();
-  if(!leaderboardReady()){rankingStatus.textContent='Classement mondial non configuré.';return}
-  rankingStatus.textContent='Chargement…';
+  if(!leaderboardReady()){rankingStatus.textContent=tr('Classement mondial non configuré.');return}
+  rankingStatus.textContent=tr('Chargement…');
   try{
     const results=await leaderboardRequest(`scores?select=pseudo,score&difficulty=eq.${difficulty}&order=score.desc,created_at.asc&limit=10`);
     if(!rankingDialog.open||Number(rankingLevel.value)!==difficulty)return;
     results.forEach((entry,index)=>{
       const line=document.createElement('li');
-      line.textContent=`${index+1}. ${entry.pseudo} — ${Number(entry.score).toLocaleString('fr-FR')}`;
+      line.textContent=`${index+1}. ${entry.pseudo} — ${formatScore(entry.score)}`;
       rankingList.append(line);
     });
-    rankingStatus.textContent=results.length?'':'Aucun score publié à ce niveau.';
-  }catch(_error){rankingStatus.textContent='Classement indisponible pour le moment.'}
+    rankingStatus.textContent=results.length?'':tr('Aucun score publié à ce niveau.');
+  }catch(_error){rankingStatus.textContent=tr('Classement indisponible pour le moment.')}
 }
 rankingBtn.addEventListener('click',()=>{
   rankingLevel.value=String(uiDifficulty);
@@ -154,7 +232,7 @@ rankingBtn.addEventListener('click',()=>{
 });
 rankingLevel.addEventListener('change',loadRanking);
 document.querySelector('#ranking-close').addEventListener('click',()=>rankingDialog.close());
-function togglePause(){if(state==='playing'){state='paused';pauseBtn.textContent='REPRENDRE';showOverlay('PAUSE','Prends ton temps.','REPRENDRE')}else if(state==='paused'){state='playing';pauseBtn.textContent='PAUSE';overlay.classList.add('hidden');lastTime=performance.now()}syncMusic()}
+function togglePause(){if(state==='playing'){state='paused';pauseBtn.textContent=tr('REPRENDRE');showOverlay('PAUSE','Prends ton temps.','REPRENDRE')}else if(state==='paused'){state='playing';pauseBtn.textContent=tr('PAUSE');overlay.classList.add('hidden');lastTime=performance.now()}syncMusic()}
 let wobbleTime=0;
 function cell(context,x,y,color,size=SIZE,alpha=1){
   const power=state==='playing'&&!reduceMotion.matches?[0,0,.045,.095,.16][uiDifficulty]:0;
