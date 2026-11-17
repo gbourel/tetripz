@@ -163,7 +163,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{
 }
 .ui-difficulty-wrap label,.ranking-dialog label,#publish-form label{color:#bcff9c}
 .next canvas{border:2px solid #f854bb;box-shadow:0 0 20px #f854bb55}
-.controls kbd,.controls kbd{
+.controls kbd{
   background:#351b66;border:1px solid #d26afd;color:#d0ffb5;
   box-shadow:2px 2px 0 #06051d;
 }
