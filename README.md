@@ -33,10 +33,11 @@ Des boutons tactiles sont disponibles sur mobile. Le bouton **MENU**, à côté 
 - Houle, zoom aléatoire et effet de vision double uniquement pour les niveaux 1 à 4
 - Rotation très prononcée au niveau 3 et tours complets, avec vitesse ondulante et sens aléatoire, au niveau 4
 - Vision double : copie translucide et colorée du plateau, avec rotation, zoom et opacité évoluant indépendamment
+- Couleurs des briques du jeu et de l'aperçu variant progressivement en teinte et saturation aux niveaux 3 et 4 (plus vite et plus fortement au niveau 4)
 
 ## Version du jeu
 
-Version actuelle : **v1.4.0** (bouton Menu pour quitter une partie et choisir un autre niveau).
+Version actuelle : **v1.5.0** (variation aléatoire et progressive des teintes et saturations des briques aux niveaux 3 et 4).
 
 Le numéro de version est affiché discrètement dans le pied de page du jeu et défini dans `index.html` (élément `#app-version`).
 
