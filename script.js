@@ -7,12 +7,28 @@ const nextCanvas=document.querySelector('#next'),nextCtx=nextCanvas.getContext('
 const scoreEl=document.querySelector('#score'),bestEl=document.querySelector('#best'),linesEl=document.querySelector('#lines'),levelEl=document.querySelector('#level');
 const overlay=document.querySelector('#overlay'),overlayTitle=document.querySelector('#overlay-title'),overlayMessage=document.querySelector('#overlay-message');
 const startBtn=document.querySelector('#start'),pauseBtn=document.querySelector('#pause'),menuBtn=document.querySelector('#menu');
+const publishBtn=document.querySelector('#publish-score'),publishForm=document.querySelector('#publish-form');
+const publishName=document.querySelector('#publish-name'),publishStatus=document.querySelector('#publish-status');
+const confirmPublishBtn=document.querySelector('#confirm-publish');
+const rankingBtn=document.querySelector('#ranking'),rankingDialog=document.querySelector('#ranking-dialog');
+const rankingLevel=document.querySelector('#ranking-level'),rankingList=document.querySelector('#ranking-list'),rankingStatus=document.querySelector('#ranking-status');
+// Clé PUBLIQUE uniquement (jamais de clé secret/service_role) : voir README.
+const SUPABASE_URL='',SUPABASE_PUBLISHABLE_KEY='';
+const leaderboardReady=()=>SUPABASE_URL.startsWith('https://')&&SUPABASE_PUBLISHABLE_KEY.startsWith('sb_publishable_');
+async function leaderboardRequest(path,options={}){
+  const response=await fetch(`${SUPABASE_URL.replace(/\/$/,'')}/rest/v1/${path}`,{
+    ...options,headers:{apikey:SUPABASE_PUBLISHABLE_KEY,...options.headers}
+  });
+  if(!response.ok)throw Error(`Supabase HTTP ${response.status}`);
+  return response.status===204?null:response.json();
+}
 const uiDifficultyWrap=document.querySelector('#ui-difficulty-wrap');
 const uiDifficultySelect=document.querySelector('#ui-difficulty');
 let uiDifficulty=Number(uiDifficultySelect.value);
 uiDifficultySelect.addEventListener('change',()=>{uiDifficulty=Number(uiDifficultySelect.value)});
 
 let board,active,nextPiece,bag=[],score=0,lines=0,level=1,best=0,state='ready',lastTime=0,dropCounter=0;
+let bestBeforeGame=0,publishedThisGame=false;
 try{best=Number(localStorage.getItem('tetripz-best'))||0}catch(_e){}bestEl.textContent=best;
 function emptyBoard(){return Array.from({length:ROWS},()=>Array(COLS).fill(null))}
 function randomType(){if(!bag.length){bag=Object.keys(SHAPES);for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]]}}return bag.pop()}
@@ -24,9 +40,21 @@ function rotate(){if(state!=='playing')return;const m=active.matrix;const rotate
 function hardDrop(){if(state!=='playing')return;let n=0;while(!collides(active.matrix,active.x,active.y+1)){active.y++;n++}score+=n*2;lockPiece()}
 function lockPiece(){for(let r=0;r<active.matrix.length;r++)for(let c=0;c<active.matrix[r].length;c++)if(active.matrix[r][c]){const y=active.y+r;if(y<0){gameOver();return}board[y][active.x+c]=active.type}let cleared=0;for(let y=ROWS-1;y>=0;y--){if(board[y].every(Boolean)){board.splice(y,1);board.unshift(Array(COLS).fill(null));cleared++;y++}}if(cleared){score+=[0,100,300,500,800][cleared]*level;lines+=cleared;level=Math.floor(lines/10)+1}updateStats();spawn();dropCounter=0}
 function updateStats(){scoreEl.textContent=score.toLocaleString('fr-FR');linesEl.textContent=lines;levelEl.textContent=level;if(score>best){best=score;bestEl.textContent=best.toLocaleString('fr-FR');try{localStorage.setItem('tetripz-best',String(best))}catch(_e){}}}
-function showOverlay(title,message,button){uiDifficultyWrap.hidden=state==='paused';overlayTitle.textContent=title;overlayMessage.textContent=message;startBtn.textContent=button;overlay.classList.remove('hidden')}
-function startGame(){uiDifficultyWrap.hidden=true;wobbleTime=0;brickHue=0;brickSat=1;brickFilter='none';if(uiDifficulty>=3)chooseBrickColors();swellTime=0;spinAngle=0;spinDirection=Math.random()<.5?-1:1;zoomScale=1;zoomFrom=1;zoomTarget=1;zoomElapsed=0;if(uiDifficulty>0){chooseZoomTarget();resetDoubleVision()}board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;menuBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now()}
-function gameOver(){state='over';pauseBtn.disabled=true;menuBtn.disabled=true;showOverlay('GAME OVER',`Score : ${score.toLocaleString('fr-FR')}`,'REJOUER')}
+function showOverlay(title,message,button){
+  uiDifficultyWrap.hidden=state!=='ready';
+  publishBtn.hidden=true;publishForm.hidden=true;
+  overlayTitle.textContent=title;overlayMessage.textContent=message;
+  startBtn.textContent=button;overlay.classList.remove('hidden');
+}
+function startGame(){bestBeforeGame=best;publishedThisGame=false;rankingBtn.disabled=true;uiDifficultyWrap.hidden=true;publishBtn.hidden=true;publishForm.hidden=true;wobbleTime=0;brickHue=0;brickSat=1;brickFilter='none';if(uiDifficulty>=3)chooseBrickColors();swellTime=0;spinAngle=0;spinDirection=Math.random()<.5?-1:1;zoomScale=1;zoomFrom=1;zoomTarget=1;zoomElapsed=0;if(uiDifficulty>0){chooseZoomTarget();resetDoubleVision()}board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;menuBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now()}
+function gameOver(){
+  state='over';pauseBtn.disabled=true;menuBtn.disabled=true;rankingBtn.disabled=false;
+  const record=score>0&&score>bestBeforeGame;
+  showOverlay('GAME OVER',record?`Nouveau record : ${score.toLocaleString('fr-FR')} !`:`Score : ${score.toLocaleString('fr-FR')}`,'REJOUER');
+  publishBtn.hidden=!record;
+  publishBtn.disabled=!leaderboardReady();
+  if(record&&!leaderboardReady())overlayMessage.textContent+=' Classement mondial à configurer.';
+}
 function goToMenu(){
   if(state!=='playing'&&state!=='paused')return;
   state='ready';
@@ -34,9 +62,60 @@ function goToMenu(){
   score=0;lines=0;level=1;dropCounter=0;
   updateStats();drawNext();
   boardWrap.style.transform='none';ghostLayers.forEach(layer=>{layer.canvas.hidden=true});
-  pauseBtn.disabled=true;pauseBtn.textContent='PAUSE';menuBtn.disabled=true;
+  pauseBtn.disabled=true;pauseBtn.textContent='PAUSE';menuBtn.disabled=true;rankingBtn.disabled=false;
   showOverlay('CHOISIS TON NIVEAU','Choisis l’intensité des effets.','JOUER');
 }
+// Aucune publication automatique : le pseudo n'est demandé qu'après un clic volontaire.
+publishBtn.addEventListener('click',()=>{
+  if(state!=='over'||score<=bestBeforeGame||publishedThisGame||!leaderboardReady())return;
+  publishBtn.hidden=true;publishForm.hidden=false;
+  publishName.value='';publishStatus.textContent='';publishName.focus();
+});
+document.querySelector('#cancel-publish').addEventListener('click',()=>{
+  publishForm.hidden=true;publishBtn.hidden=false;
+  publishName.value='';
+});
+publishForm.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const pseudo=publishName.value.trim().replace(/\s+/g,' ');
+  if(pseudo.length<2||pseudo.length>20){publishStatus.textContent='Choisis un pseudo de 2 à 20 caractères.';return}
+  if(state!=='over'||score<=bestBeforeGame||publishedThisGame||!leaderboardReady())return;
+  confirmPublishBtn.disabled=true;publishStatus.textContent='Publication en cours…';
+  const gameScore=score,gameDifficulty=uiDifficulty;
+  try{
+    await leaderboardRequest('scores',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({pseudo,score:gameScore,difficulty:gameDifficulty})});
+    publishedThisGame=true;
+    if(state==='over'){
+      publishForm.hidden=true;publishBtn.hidden=true;
+      overlayMessage.textContent='Record publié ! Merci pour ta participation.';
+    }
+  }catch(_error){
+    publishStatus.textContent='Publication impossible. Réessaie plus tard.';
+  }finally{confirmPublishBtn.disabled=false}
+});
+async function loadRanking(){
+  const difficulty=Number(rankingLevel.value);
+  rankingList.replaceChildren();
+  if(!leaderboardReady()){rankingStatus.textContent='Classement mondial non configuré.';return}
+  rankingStatus.textContent='Chargement…';
+  try{
+    const results=await leaderboardRequest(`scores?select=pseudo,score&difficulty=eq.${difficulty}&order=score.desc,created_at.asc&limit=10`);
+    if(!rankingDialog.open||Number(rankingLevel.value)!==difficulty)return;
+    results.forEach((entry,index)=>{
+      const line=document.createElement('li');
+      line.textContent=`${index+1}. ${entry.pseudo} — ${Number(entry.score).toLocaleString('fr-FR')}`;
+      rankingList.append(line);
+    });
+    rankingStatus.textContent=results.length?'':'Aucun score publié à ce niveau.';
+  }catch(_error){rankingStatus.textContent='Classement indisponible pour le moment.'}
+}
+rankingBtn.addEventListener('click',()=>{
+  rankingLevel.value=String(uiDifficulty);
+  rankingDialog.showModal();
+  loadRanking();
+});
+rankingLevel.addEventListener('change',loadRanking);
+document.querySelector('#ranking-close').addEventListener('click',()=>rankingDialog.close());
 function togglePause(){if(state==='playing'){state='paused';pauseBtn.textContent='REPRENDRE';showOverlay('PAUSE','Prends ton temps.','REPRENDRE')}else if(state==='paused'){state='playing';pauseBtn.textContent='PAUSE';overlay.classList.add('hidden');lastTime=performance.now()}}
 let wobbleTime=0;
 function cell(context,x,y,color,size=SIZE,alpha=1){
