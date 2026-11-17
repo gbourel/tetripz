@@ -255,15 +255,15 @@ header .music-controls output{font-size:10px;min-width:29px}
   .next canvas{margin-top:6px}
 }
 
-/* Classement sous le plateau, commandes tactiles au premier plan sur mobile. */
+/* Le plateau passe devant la colonne de droite ; les touches restent au premier plan. */
 header>.brand-icon{display:block;margin:0 auto}
-#ranking{grid-column:2;grid-row:2;width:100%;align-self:start}
+.board-wrap{z-index:1}
+.side{position:relative;z-index:0}
+#ranking{width:100%}
 @media(max-width:760px){
   .board-wrap,.side{grid-row:1}
-  .board-wrap{z-index:0}
   .touch-controls{grid-row:2;position:relative;z-index:10;margin:4px auto 0}
-  #ranking{grid-column:1;grid-row:3}
-  .stats{grid-row:4}
+  .stats{grid-row:3}
   header{padding-top:68px}
   header>.brand-icon{position:absolute;top:0;left:0;width:58px;height:58px}
 }
