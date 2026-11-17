@@ -408,7 +408,7 @@ assert.match(html, /<title>Tryptis — Psychedelic Blocks<\/title>/);
 assert.match(html, /aria-label="Jeu Tryptis" data-i18n-aria-label="Jeu Tryptis"/);
 assert.match(html, /<\/span> · TRYPTIS <span id="app-version"/);
 assert.equal(en.translate('Jeu Tryptis'),'Tryptis game');
-assert.doesNotMatch(html, /tryptis|tryptis/);
+assert.doesNotMatch(html, /Tetripz|TETRIPZ/);
 console.log('OK : nouveau nom Tryptis, titres et traductions.');
 
 // Le rendu est limité à 30 FPS, immobile aux niveaux 0–1 et après la partie.
