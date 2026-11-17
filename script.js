@@ -25,7 +25,7 @@ function hardDrop(){if(state!=='playing')return;let n=0;while(!collides(active.m
 function lockPiece(){for(let r=0;r<active.matrix.length;r++)for(let c=0;c<active.matrix[r].length;c++)if(active.matrix[r][c]){const y=active.y+r;if(y<0){gameOver();return}board[y][active.x+c]=active.type}let cleared=0;for(let y=ROWS-1;y>=0;y--){if(board[y].every(Boolean)){board.splice(y,1);board.unshift(Array(COLS).fill(null));cleared++;y++}}if(cleared){score+=[0,100,300,500,800][cleared]*level;lines+=cleared;level=Math.floor(lines/10)+1}updateStats();spawn();dropCounter=0}
 function updateStats(){scoreEl.textContent=score.toLocaleString('fr-FR');linesEl.textContent=lines;levelEl.textContent=level;if(score>best){best=score;bestEl.textContent=best.toLocaleString('fr-FR');try{localStorage.setItem('tetripz-best',String(best))}catch(_e){}}}
 function showOverlay(title,message,button){uiDifficultyWrap.hidden=state==='paused';overlayTitle.textContent=title;overlayMessage.textContent=message;startBtn.textContent=button;overlay.classList.remove('hidden')}
-function startGame(){uiDifficultyWrap.hidden=true;brickHue=0;brickSat=1;brickFilter='none';if(uiDifficulty>=3)chooseBrickColors();swellTime=0;spinAngle=0;spinDirection=Math.random()<.5?-1:1;zoomScale=1;zoomFrom=1;zoomTarget=1;zoomElapsed=0;if(uiDifficulty>0){chooseZoomTarget();resetDoubleVision()}board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;menuBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now()}
+function startGame(){uiDifficultyWrap.hidden=true;wobbleTime=0;brickHue=0;brickSat=1;brickFilter='none';if(uiDifficulty>=3)chooseBrickColors();swellTime=0;spinAngle=0;spinDirection=Math.random()<.5?-1:1;zoomScale=1;zoomFrom=1;zoomTarget=1;zoomElapsed=0;if(uiDifficulty>0){chooseZoomTarget();resetDoubleVision()}board=emptyBoard();bag=[];score=0;lines=0;level=1;dropCounter=0;nextPiece=createPiece();state='playing';spawn();updateStats();overlay.classList.add('hidden');pauseBtn.disabled=false;menuBtn.disabled=false;pauseBtn.textContent='PAUSE';lastTime=performance.now()}
 function gameOver(){state='over';pauseBtn.disabled=true;menuBtn.disabled=true;showOverlay('GAME OVER',`Score : ${score.toLocaleString('fr-FR')}`,'REJOUER')}
 function goToMenu(){
   if(state!=='playing'&&state!=='paused')return;
@@ -38,7 +38,28 @@ function goToMenu(){
   showOverlay('CHOISIS TON NIVEAU','Choisis l’intensité des effets.','JOUER');
 }
 function togglePause(){if(state==='playing'){state='paused';pauseBtn.textContent='REPRENDRE';showOverlay('PAUSE','Prends ton temps.','REPRENDRE')}else if(state==='paused'){state='playing';pauseBtn.textContent='PAUSE';overlay.classList.add('hidden');lastTime=performance.now()}}
-function cell(context,x,y,color,size=SIZE,alpha=1){context.globalAlpha=alpha;context.fillStyle=color;context.fillRect(x*size+1,y*size+1,size-2,size-2);context.fillStyle='#ffffff35';context.fillRect(x*size+3,y*size+3,size-6,3);context.globalAlpha=1}
+let wobbleTime=0;
+function cell(context,x,y,color,size=SIZE,alpha=1){
+  const power=state==='playing'&&!reduceMotion.matches?[0,0,.045,.095,.16][uiDifficulty]:0;
+  let px=x*size,py=y*size;
+  if(power){
+    // Chaque case possède sa phase et sa fréquence : rebond et écrasement indépendants.
+    const phase=x*2.73+y*4.91+(context===nextCtx?7.11:0);
+    const speed=4.1+1.7*Math.sin(phase*1.83);
+    const bounce=Math.sin(wobbleTime*speed*1.65+phase*1.7);
+    const squash=power*(Math.sin(wobbleTime*speed+phase)+.25*bounce);
+    context.save();
+    context.translate((x+.5)*size,(y+.5)*size+power*size*.55*bounce);
+    context.rotate(power*.3*Math.sin(wobbleTime*speed*.7+phase*1.3));
+    context.scale(1+squash,1-squash);
+    px=py=-size/2;
+  }
+  context.globalAlpha=alpha;
+  context.fillStyle=color;context.fillRect(px+1,py+1,size-2,size-2);
+  context.fillStyle='#ffffff35';context.fillRect(px+3,py+3,size-6,3);
+  context.globalAlpha=1;
+  if(power)context.restore();
+}
 function draw(){
   ctx.filter='none';
   ctx.fillStyle='#0b1226';ctx.fillRect(0,0,300,600);
@@ -162,7 +183,7 @@ function animateSwell(dt){
   const y=(Math.sin(t*.61+2)*3+Math.sin(t*.35)*1.5)*intensity;
   boardWrap.style.transform=`translate3d(${x.toFixed(2)}px,${y.toFixed(2)}px,0) rotate(${angle.toFixed(2)}deg) scale(${zoomScale.toFixed(4)})`;
 }
-function frame(time=0){const dt=Math.min(time-lastTime,100);lastTime=time;if(state==='playing'){dropCounter+=Math.max(0,dt);const interval=Math.max(85,850*Math.pow(.82,level-1));if(dropCounter>=interval){move(0,1);dropCounter=0}}animateSwell(dt);animateBrickColors(dt);draw();if(state==='playing'&&uiDifficulty>=3)drawNext();animateDoubleVision(dt);requestAnimationFrame(frame)}
+function frame(time=0){const dt=Math.min(time-lastTime,100);lastTime=time;if(state==='playing'){dropCounter+=Math.max(0,dt);const interval=Math.max(85,850*Math.pow(.82,level-1));if(dropCounter>=interval){move(0,1);dropCounter=0}}animateSwell(dt);animateBrickColors(dt);if(state==='playing'&&uiDifficulty>=2&&!reduceMotion.matches)wobbleTime+=Math.max(0,dt)/1000;draw();if(state==='playing'&&uiDifficulty>=2)drawNext();animateDoubleVision(dt);requestAnimationFrame(frame)}
 function action(name){if(name==='left')move(-1,0);else if(name==='right')move(1,0);else if(name==='down'){if(move(0,1)){score++;updateStats()}dropCounter=0}else if(name==='rotate')rotate();else if(name==='drop')hardDrop()}
 document.addEventListener('keydown',e=>{const map={ArrowLeft:'left',ArrowRight:'right',ArrowDown:'down',ArrowUp:'rotate',Space:'drop'};const key=e.code==='Space'?'Space':e.key;if(map[key]){e.preventDefault();if(!e.repeat||key!=='Space')action(map[key])}else if(key.toLowerCase()==='p'){e.preventDefault();if(!e.repeat)togglePause()}else if(key.toLowerCase()==='r'){e.preventDefault();if(!e.repeat)startGame()}});
 // Maintenir gauche/droite/bas pour répéter, appui simple pour rotation/chute.
