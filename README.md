@@ -19,7 +19,7 @@ Ouvrez `index.html` dans votre navigateur. Cliquez sur **JOUER**.
 | P | Pause / reprendre |
 | R | Recommencer |
 
-Des boutons tactiles sont disponibles sur mobile. Le bouton **MENU**, à côté de **PAUSE**, permet de quitter une partie en cours (même en pause) et de choisir un autre niveau sans perdre le record.
+Sur mobile, les boutons tactiles sont placés directement sous le plateau, avant les scores. L'aide aux raccourcis clavier est repliée sur ordinateur et masquée sur téléphone. Le bouton **MENU**, à côté de **PAUSE**, permet de quitter une partie en cours (même en pause) et de choisir un autre niveau sans perdre le record.
 
 ## Fonctionnalités
 
@@ -27,7 +27,7 @@ Des boutons tactiles sont disponibles sur mobile. Le bouton **MENU**, à côté 
 - Pièce fantôme et aperçu de la prochaine pièce
 - Score, lignes, niveaux, accélération progressive
 - Meilleur score enregistré localement **par niveau d'effets (0 à 4)**
-- Bande-son en boucle avec bouton pour l'activer ou l'arrêter, et volume réglable (mémorisé dans le navigateur)
+- Bande-son en boucle avec icône de haut-parleur et volume compact en haut de page (préférences mémorisées dans le navigateur)
 - Thème arcade psychédélique et responsive : tétriminos décoratifs, quadrillage, reflets multicolores, panneaux néon et animations respectant « réduire les animations ».
 - Logo psychédélique en tétriminos 3D généré pour Tetripz (`assets/tetripz-logo.png`) ; la même icône est affichée près du titre et utilisée comme favicon du navigateur.
 - Retour au menu depuis une partie en cours ou en pause, sans effacer le meilleur score
@@ -51,13 +51,13 @@ L'interface s'affiche automatiquement en **français** ou en **anglais** selon l
 
 ## Musique de fond
 
-Le jeu tente de lire la musique `tetripz.mp3` en boucle dès l'ouverture de la page, indépendamment de la partie (menu, pause, fin de partie). Les navigateurs peuvent bloquer la lecture automatique avec son : dans ce cas, la musique démarre dès la première interaction (clic, toucher ou touche du clavier), sans avoir besoin de lancer une partie. Le bouton **COUPER / ACTIVER** et le curseur de volume restent disponibles sur ordinateur et mobile. Les préférences `tetripz-music` et `tetripz-volume` sont conservées dans `localStorage`.
+Le jeu tente de lire la musique `tetripz.mp3` en boucle dès l'ouverture de la page, indépendamment de la partie (menu, pause, fin de partie). Les navigateurs peuvent bloquer la lecture automatique avec son : dans ce cas, la musique démarre dès la première interaction (clic, toucher ou touche du clavier), sans avoir besoin de lancer une partie. L'icône **🔊 / 🔇** et le curseur de volume sont disponibles en haut de page sur ordinateur et mobile. Les préférences `tetripz-music` et `tetripz-volume` sont conservées dans `localStorage`.
 
 **Déploiement du MP3 :** le fichier audio joint doit être placé à la **racine du dépôt GitHub**, sous le nom exact `tetripz.mp3` (à côté de `index.html`). Le code et l'interface peuvent être publiés indépendamment, mais **la musique n'est pas audible tant que le fichier binaire n'est pas présent sur GitHub Pages**.
 
 ## Version du jeu
 
-Version actuelle : **v1.14.2** (musique de fond indépendante de la partie, avec tentative de lecture dès l'ouverture).
+Version actuelle : **v1.15.0** (commandes tactiles remontées, aide clavier repliable, lecteur audio compact en haut).
 
 ## Licence
 
