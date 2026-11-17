@@ -2,6 +2,10 @@
 
 Un jeu de blocs façon Tetris, en **HTML, CSS et JavaScript vanilla**. Aucun framework, aucune dépendance.
 
+## Pour tester
+
+Le jeu est disponible ici : [https://gbourel.github.io/tetripz/](https://gbourel.github.io/tetripz/)
+
 ## Jouer
 
 Ouvrez `index.html` dans votre navigateur. Cliquez sur **JOUER**.
@@ -24,10 +28,6 @@ Des boutons tactiles sont disponibles sur mobile.
 - Score, lignes, niveaux, accélération progressive
 - Meilleur score enregistré localement
 - Design néon responsive
-
-## Déploiement GitHub Pages
-
-Dans le dépôt GitHub : **Settings → Pages → Deploy from a branch → main / (root) → Save**.
 
 ## Version du jeu
 
