@@ -13,7 +13,7 @@ assert.match(html, /<option value="0" selected>/);
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
 assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
-assert.match(html, /v1\.9\.0/);
+assert.match(html, /v1\.9\.1/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
 assert.equal((html.match(/class="double-vision"/g)||[]).length,3);
 assert.match(js, /uiDifficulty>0&&!reduceMotion\.matches/);
@@ -173,3 +173,29 @@ assert.match(sql,/for insert to anon/i);
 assert.match(sql,/revoke all on public\.scores from anon, authenticated/i);
 assert.doesNotMatch(sql,/grant (?:update|delete)\b/i);
 console.log('OK : publication facultative seulement sur record, lecture publique et RLS.');
+
+
+// Les créations renvoient souvent HTTP 201 sans corps avec Prefer:return=minimal.
+// Aucun message d'échec ni second envoi ne doit être provoqué par un JSON absent.
+const requestStart=js.indexOf('async function leaderboardRequest(');
+const requestEnd=js.indexOf('const uiDifficultyWrap=',requestStart);
+assert.ok(requestStart>=0&&requestEnd>requestStart);
+const makeRequest=new Function('fetch',`
+  const SUPABASE_URL='https://example.supabase.co',SUPABASE_PUBLISHABLE_KEY='sb_publishable_test';
+  ${js.slice(requestStart,requestEnd)}
+  return leaderboardRequest;
+`);
+let parsed=false;
+const successfulPost=makeRequest(async()=>({
+  ok:true,status:201,json(){parsed=true;throw Error('Réponse vide')}
+}));
+assert.equal(await successfulPost('scores',{method:'POST',headers:{Prefer:'return=minimal'}}),null);
+assert.equal(parsed,false);
+const successfulGet=makeRequest(async()=>({
+  ok:true,status:200,json(){parsed=true;return [{pseudo:'Test',score:100}]}
+}));
+assert.deepEqual(await successfulGet('scores?select=pseudo,score'),[{pseudo:'Test',score:100}]);
+assert.equal(parsed,true);
+const failedPost=makeRequest(async()=>({ok:false,status:400}));
+await assert.rejects(failedPost('scores',{method:'POST',headers:{Prefer:'return=minimal'}}),/Supabase HTTP 400/);
+console.log('OK : POST 201 sans JSON accepté ; GET lisible ; erreurs HTTP préservées.');
