@@ -13,7 +13,7 @@ assert.match(html, /<option value="0" selected data-i18n="0 · Normal \(sans eff
 assert.doesNotMatch(html, /id="mode-menu"/);
 assert.match(js, /uiDifficulty===0\|\|reduceMotion\.matches/);
 assert.match(js, /if\(uiDifficulty>0\)\{chooseZoomTarget\(\);resetDoubleVision\(\)\}/);
-assert.match(html, /v1\.14\.2/);
+assert.match(html, /v1\.15\.0/);
 assert.match(html, /id="double-vision"[^>]*aria-hidden="true" hidden/);
 assert.equal((html.match(/class="double-vision"/g)||[]).length,3);
 assert.match(js, /uiDifficulty>0&&!reduceMotion\.matches/);
@@ -268,7 +268,8 @@ const exerciseMusic=new Function('saved',`
   };
   const toggleElement={handlers:{},textContent:'',attrs:{},
     addEventListener(name,callback){this.handlers[name]=callback},
-    setAttribute(name,value){this.attrs[name]=value}
+    setAttribute(name,value){this.attrs[name]=value},
+    getAttribute(name){return this.attrs[name]}
   };
   const volumeElement={handlers:{},value:'40',
     addEventListener(name,callback){this.handlers[name]=callback}
@@ -298,7 +299,8 @@ soundtrack.state('playing');
 assert.equal(soundtrack.musicElement.plays,0); // arrêt enregistré
 soundtrack.toggle();
 assert.equal(soundtrack.musicElement.plays,1);
-assert.equal(soundtrack.musicToggle.textContent,'COUPER');
+assert.equal(soundtrack.musicToggle.textContent,'🔊');
+assert.equal(soundtrack.musicToggle.attrs['aria-label'],'Couper la musique');
 soundtrack.volume(25);
 assert.equal(soundtrack.musicElement.volume,.25);
 assert.equal(soundtrack.data.get('tetripz-volume'),'25');
@@ -308,7 +310,8 @@ assert.equal(soundtrack.musicElement.pauses,pausesBefore); // La pause du jeu ne
 soundtrack.state('ready');
 assert.equal(soundtrack.musicElement.pauses,pausesBefore); // Le menu non plus.
 soundtrack.toggle();
-assert.equal(soundtrack.musicToggle.textContent,'ACTIVER');
+assert.equal(soundtrack.musicToggle.textContent,'🔇');
+assert.equal(soundtrack.musicToggle.attrs['aria-label'],'Activer la musique');
 assert.equal(soundtrack.data.get('tetripz-music'),'off');
 const autoplay=exerciseMusic([]);
 autoplay.start(); // Chargement de page avant JOUER.
@@ -323,8 +326,8 @@ console.log('OK : musique dès la page, première interaction, volume, arrêt et
 // Le thème psychédélique conserve les points d'entrée et l'accessibilité du jeu.
 assert.match(html, /ARCADE \/ BLOCK PARTY/);
 assert.match(html, /name="theme-color" content="#130726"/);
-assert.match(html, /script\.js\?v=1\.14\.2/);
-assert.match(html, /style\.css\?v=1\.14\.2/);
+assert.match(html, /script\.js\?v=1\.15\.0/);
+assert.match(html, /style\.css\?v=1\.15\.0/);
 assert.match(css, /--accent:#9cff60/);
 assert.match(css, /header::before,header::after/); // tétriminos décoratifs
 assert.match(css, /repeating-linear-gradient/); // grille Tetris
@@ -382,10 +385,21 @@ assert.match(html,/id="confirm-publish" type="submit"/);
 console.log('OK : français, anglais, langue de secours et traduction complète des libellés.');
 
 // Le logo généré apparaît dans l'en-tête et sert aussi d'icône du site.
-assert.match(html, /<img class="brand-icon" src="assets\/tetripz-logo\.png\?v=1\.14\.2"[^>]*alt="" aria-hidden="true">/);
-assert.match(html, /<link rel="icon" type="image\/png" sizes="64x64" href="assets\/tetripz-icon\.png\?v=1\.14\.2"/);
+assert.match(html, /<img class="brand-icon" src="assets\/tetripz-logo\.png\?v=1\.15\.0"[^>]*alt="" aria-hidden="true">/);
+assert.match(html, /<link rel="icon" type="image\/png" sizes="64x64" href="assets\/tetripz-icon\.png\?v=1\.15\.0"/);
 assert.match(css, /\.brand-row\{display:flex;justify-content:center/);
 assert.match(css, /\.brand-icon\{[\s\S]*?width:80px;height:80px/);
 assert.match(css, /@media\(max-width:410px\)\{\s*\.brand-row\{gap:8px\}/);
 assert.match(html, /<h1>TETRI<span>PZ<\/span><\/h1>/);
 console.log('OK : logo néon 3D, favicon PNG et en-tête mobile.');
+
+assert.match(html, /<header>[\s\S]*?class="music-controls"[\s\S]*?<\/header>/);
+assert.match(html, /<details class="controls"><summary data-i18n="COMMANDES">/);
+assert.match(html, /<\/aside>\s*<nav class="touch-controls"[\s\S]*?<\/nav>\s*<\/section>/);
+assert.match(css, /\.touch-controls\{grid-column:1\/-1;grid-row:2/);
+assert.match(css, /\.stats\{grid-row:3\}/);
+assert.match(css, /\.board-wrap\{\s*width:min\(100%,max\(170px,\(100dvh - 290px\)\/2\)\)/);
+assert.match(css, /\.controls\{display:none\}/);
+assert.equal(en.translate('Couper la musique'),'Mute music');
+assert.equal(en.translate('Activer la musique'),'Unmute music');
+console.log('OK : contrôles mobiles remontés, aide clavier repliée, audio compact accessible.');
