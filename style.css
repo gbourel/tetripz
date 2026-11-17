@@ -53,3 +53,11 @@
 #ranking-list li{padding:9px 8px;border-bottom:1px solid var(--border);font-size:14px;overflow-wrap:anywhere}
 #ranking-status{color:var(--muted);font-size:13px;min-height:1em}
 @media(max-width:410px){#publish-score{padding:10px 6px;font-size:11px}#publish-form{margin-top:8px}}
+
+/* Lecteur de musique compact, accessible sur desktop comme sur mobile. */
+.music-controls{display:grid;gap:8px;min-width:0}
+.music-controls button{width:100%;min-width:0;padding:10px 4px;font-size:11px}
+.music-controls label{display:flex;flex-wrap:wrap;gap:4px;align-items:center;color:#b8c9e7;font-size:10px;font-weight:800;letter-spacing:.5px}
+.music-controls output{color:var(--accent)}
+.music-controls input[type=range]{display:block;width:100%;min-width:0;margin:0;accent-color:var(--accent);cursor:pointer;touch-action:manipulation}
+@media(max-width:410px){.music-controls button{font-size:9px;letter-spacing:0}}
