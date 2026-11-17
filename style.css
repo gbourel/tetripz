@@ -132,7 +132,7 @@ small,.side small{color:#f4b9f3}
 .board-wrap{
   border:3px solid #72faff;border-radius:7px;
   box-shadow:0 0 0 6px #271050,0 0 0 9px #f652c8b5,0 0 36px #a248fc99,0 0 70px #18f9ff42;
-  animation:blockAura 7s ease-in-out infinite;
+  /* Halo statique : animer le box-shadow provoquait des repaints coûteux. */
 }
 .overlay{
   background:linear-gradient(155deg,#16092aef,#240a43e9 48%,#090c22f0);
@@ -186,9 +186,6 @@ button:focus-visible,select:focus-visible,input:focus-visible{
 footer{border-top:1px solid #b453f566;padding-top:18px;color:#dac4ef}
 .app-version{color:#beff81}
 @keyframes chromaTitle{to{background-position:220% 0}}
-@keyframes blockAura{
-  50%{box-shadow:0 0 0 6px #271050,0 0 0 9px #b9ff70a8,0 0 44px #ff4ac69f,0 0 80px #45fce85c}
-}
 @media(max-width:760px){
   header::before,header::after{display:none}
   .stats .stat{padding-left:7px}
